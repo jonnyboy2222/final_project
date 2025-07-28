@@ -162,13 +162,21 @@ class MainWindow(QMainWindow):
     #홈 버튼 누르면 하는 일
     def on_home_clicked(self):
         #초기화
-        self.selected_function = None
-        self.destinations = []
+        #스캔 관련
         self.scanned_data = []
-        self.place_counts = {}
+        #선택한 기능 관련
+        self.selected_function = None
+        #인증번호 관련
+        self.correct_password = ""
+        self.pushed_valid_btn = ""
+        #목적지 관련
+        self.destinations = []  
+        self.selected_keys = [] 
+        self.arrived_place = [] 
         for btn in self.findChildren(QPushButton):
             if btn.objectName().startswith("btn_place_"):
                 btn.setStyleSheet("")
+        #메인으로
         self.show_page('main')
 
     # 페이지 전환 할 때 쓰이는 함수

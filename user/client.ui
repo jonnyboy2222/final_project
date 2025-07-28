@@ -1348,7 +1348,7 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>50</pointsize>
+      <pointsize>14</pointsize>
       <weight>75</weight>
       <bold>true</bold>
      </font>
@@ -1358,7 +1358,6 @@
     border: 2px solid gray;
     border-radius: 50px;
     gridline-color: gray;
-    font-size: 14pt;
     background-color: white;
 }
 
@@ -1600,7 +1599,7 @@ QHeaderView::section {
         <x>110</x>
         <y>290</y>
         <width>620</width>
-        <height>511</height>
+        <height>471</height>
        </rect>
       </property>
       <property name="palette">
@@ -2088,7 +2087,7 @@ QPushButton:hover {
         <x>860</x>
         <y>290</y>
         <width>620</width>
-        <height>511</height>
+        <height>471</height>
        </rect>
       </property>
       <property name="palette">
@@ -2623,6 +2622,33 @@ QPushButton:hover {
        </size>
       </property>
      </widget>
+     <widget class="QLabel" name="label_background1">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>50</y>
+        <width>1600</width>
+        <height>850</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <zorder>label_background1</zorder>
+     <zorder>topbar</zorder>
+     <zorder>label_greeting1</zorder>
+     <zorder>label_instruction1</zorder>
+     <zorder>btn_follow1</zorder>
+     <zorder>btn_guide1</zorder>
+     <zorder>btn_kor1</zorder>
+     <zorder>btn_eng1</zorder>
     </widget>
     <widget class="QWidget" name="page_scan">
      <widget class="QLabel" name="label_camera_area2">
@@ -3525,6 +3551,31 @@ QPushButton:hover {
        </size>
       </property>
      </widget>
+     <widget class="QLabel" name="label_background2">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>50</y>
+        <width>1600</width>
+        <height>850</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <zorder>label_background2</zorder>
+     <zorder>label_camera_area2</zorder>
+     <zorder>topbar2</zorder>
+     <zorder>label_scan_text2</zorder>
+     <zorder>btn_home2</zorder>
+     <zorder>btn_back2</zorder>
     </widget>
     <widget class="QWidget" name="page_check_info">
      <widget class="QPushButton" name="btn_correct3">
@@ -5094,6 +5145,18 @@ QPushButton:hover {
         <height>550</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <pointsize>14</pointsize>
+        <weight>50</weight>
+        <italic>true</italic>
+        <bold>false</bold>
+        <underline>false</underline>
+        <strikeout>false</strikeout>
+        <stylestrategy>PreferAntialias</stylestrategy>
+        <kerning>true</kerning>
+       </font>
+      </property>
       <property name="layoutDirection">
        <enum>Qt::LeftToRight</enum>
       </property>
@@ -5123,6 +5186,15 @@ QTableWidget::item {
 }
 </string>
       </property>
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+      <property name="lineWidth">
+       <number>10</number>
+      </property>
+      <property name="midLineWidth">
+       <number>0</number>
+      </property>
       <property name="verticalScrollBarPolicy">
        <enum>Qt::ScrollBarAlwaysOff</enum>
       </property>
@@ -5135,22 +5207,37 @@ QTableWidget::item {
       <property name="showDropIndicator" stdset="0">
        <bool>true</bool>
       </property>
+      <property name="textElideMode">
+       <enum>Qt::ElideRight</enum>
+      </property>
+      <property name="verticalScrollMode">
+       <enum>QAbstractItemView::ScrollPerItem</enum>
+      </property>
+      <property name="horizontalScrollMode">
+       <enum>QAbstractItemView::ScrollPerItem</enum>
+      </property>
       <property name="gridStyle">
        <enum>Qt::DotLine</enum>
       </property>
       <property name="sortingEnabled">
        <bool>false</bool>
       </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
       <property name="cornerButtonEnabled">
        <bool>true</bool>
       </property>
       <property name="rowCount">
-       <number>4</number>
+       <number>9</number>
       </property>
       <property name="columnCount">
        <number>2</number>
       </property>
       <attribute name="horizontalHeaderVisible">
+       <bool>false</bool>
+      </attribute>
+      <attribute name="horizontalHeaderCascadingSectionResizes">
        <bool>false</bool>
       </attribute>
       <attribute name="horizontalHeaderMinimumSectionSize">
@@ -5165,8 +5252,11 @@ QTableWidget::item {
       <attribute name="verticalHeaderVisible">
        <bool>false</bool>
       </attribute>
+      <attribute name="verticalHeaderCascadingSectionResizes">
+       <bool>false</bool>
+      </attribute>
       <attribute name="verticalHeaderDefaultSectionSize">
-       <number>137</number>
+       <number>61</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -5181,29 +5271,86 @@ QTableWidget::item {
       <row/>
       <row/>
       <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
+      <row/>
       <column/>
       <column/>
       <item row="0" column="0">
        <property name="text">
-        <string>이름(성별)</string>
+        <string>이름</string>
        </property>
       </item>
       <item row="1" column="0">
        <property name="text">
-        <string>여행국가</string>
+        <string>나이</string>
        </property>
       </item>
       <item row="2" column="0">
        <property name="text">
-        <string>탑승시간</string>
+        <string>성별</string>
        </property>
       </item>
       <item row="3" column="0">
        <property name="text">
-        <string>탑승구</string>
+        <string>출국지</string>
+       </property>
+      </item>
+      <item row="4" column="0">
+       <property name="text">
+        <string>입국지</string>
+       </property>
+      </item>
+      <item row="5" column="0">
+       <property name="text">
+        <string>좌석</string>
+       </property>
+      </item>
+      <item row="6" column="0">
+       <property name="text">
+        <string>탑승게이트</string>
+       </property>
+      </item>
+      <item row="7" column="0">
+       <property name="text">
+        <string>탑승시간</string>
+       </property>
+      </item>
+      <item row="8" column="0">
+       <property name="text">
+        <string>출발시간</string>
        </property>
       </item>
      </widget>
+     <widget class="QLabel" name="label_background3">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>50</y>
+        <width>1600</width>
+        <height>850</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <zorder>label_background3</zorder>
+     <zorder>btn_correct3</zorder>
+     <zorder>btn_retry3</zorder>
+     <zorder>topbar3</zorder>
+     <zorder>btn_home3</zorder>
+     <zorder>btn_back3</zorder>
+     <zorder>label_info_check3</zorder>
+     <zorder>tableWidget3</zorder>
     </widget>
     <widget class="QWidget" name="page_loading">
      <widget class="QFrame" name="topbar4">
@@ -5788,6 +5935,41 @@ QProgressBar::chunk {
        <string>난 보관할 거 없어</string>
       </property>
      </widget>
+     <widget class="QLabel" name="label_background4">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>50</y>
+        <width>1600</width>
+        <height>850</height>
+       </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <zorder>label_background4</zorder>
+     <zorder>topbar4</zorder>
+     <zorder>label_end_load4</zorder>
+     <zorder>btn_back4</zorder>
+     <zorder>btn_home4</zorder>
+     <zorder>weight_bar_main4</zorder>
+     <zorder>label_min_weight4</zorder>
+     <zorder>label_max_weight4</zorder>
+     <zorder>btn_end_loading4</zorder>
+     <zorder>btn_deny_load4</zorder>
     </widget>
     <widget class="QWidget" name="page_following">
      <widget class="QFrame" name="topbar5">
@@ -6318,120 +6500,10 @@ QProgressBar::chunk {
        </property>
       </widget>
      </widget>
-     <widget class="QLabel" name="label_camera_area5">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>70</y>
-        <width>1561</width>
-        <height>811</height>
-       </rect>
-      </property>
-      <property name="palette">
-       <palette>
-        <active>
-         <colorrole role="Button">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>204</red>
-            <green>204</green>
-            <blue>204</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Base">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>204</red>
-            <green>204</green>
-            <blue>204</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Window">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>204</red>
-            <green>204</green>
-            <blue>204</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </active>
-        <inactive>
-         <colorrole role="Button">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>204</red>
-            <green>204</green>
-            <blue>204</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Base">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>204</red>
-            <green>204</green>
-            <blue>204</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Window">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>204</red>
-            <green>204</green>
-            <blue>204</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </inactive>
-        <disabled>
-         <colorrole role="Button">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>204</red>
-            <green>204</green>
-            <blue>204</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Base">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>204</red>
-            <green>204</green>
-            <blue>204</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Window">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>204</red>
-            <green>204</green>
-            <blue>204</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </disabled>
-       </palette>
-      </property>
-      <property name="font">
-       <font>
-        <weight>50</weight>
-        <bold>false</bold>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: #cccccc;</string>
-      </property>
-     </widget>
      <widget class="QLabel" name="label_following_text5">
       <property name="geometry">
        <rect>
-        <x>120</x>
+        <x>100</x>
         <y>110</y>
         <width>1301</width>
         <height>131</height>
@@ -6763,6 +6835,52 @@ QProgressBar::chunk {
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
       </property>
      </widget>
+     <widget class="QLabel" name="label_background5">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>50</y>
+        <width>1600</width>
+        <height>850</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_arcs_img">
+      <property name="geometry">
+       <rect>
+        <x>500</x>
+        <y>290</y>
+        <width>621</width>
+        <height>471</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>icon/로봇음성2.png</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <zorder>label_background5</zorder>
+     <zorder>topbar5</zorder>
+     <zorder>label_following_text5</zorder>
+     <zorder>btn_home5</zorder>
+     <zorder>btn_back5</zorder>
+     <zorder>weight_bar5</zorder>
+     <zorder>label_weight5</zorder>
+     <zorder>label_arcs_img</zorder>
     </widget>
     <widget class="QWidget" name="page_select_place">
      <widget class="QLabel" name="label_weight6">
@@ -7766,7 +7884,7 @@ QProgressBar::chunk {
        <string>대기실</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="btn_plaace_gate6">
+     <widget class="QPushButton" name="btn_place_gate6">
       <property name="geometry">
        <rect>
         <x>150</x>
@@ -7779,6 +7897,40 @@ QProgressBar::chunk {
        <string>게이트</string>
       </property>
      </widget>
+     <widget class="QLabel" name="label_background6">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>50</y>
+        <width>1600</width>
+        <height>850</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <zorder>label_background6</zorder>
+     <zorder>label_weight6</zorder>
+     <zorder>topbar6</zorder>
+     <zorder>weight_bar6</zorder>
+     <zorder>label_select_place_text6</zorder>
+     <zorder>btn_back6</zorder>
+     <zorder>btn_home6</zorder>
+     <zorder>label_map6</zorder>
+     <zorder>label_predict_time6</zorder>
+     <zorder>label_time6</zorder>
+     <zorder>btn_start6</zorder>
+     <zorder>btn_place_shop6</zorder>
+     <zorder>btn_place_toilet6</zorder>
+     <zorder>btn_place_wait6</zorder>
+     <zorder>btn_place_gate6</zorder>
     </widget>
     <widget class="QWidget" name="page_check_goal">
      <widget class="QPushButton" name="btn_back7">
@@ -8733,6 +8885,35 @@ QProgressBar::chunk {
        <string>수정</string>
       </property>
      </widget>
+     <widget class="QLabel" name="label_background7">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>50</y>
+        <width>1600</width>
+        <height>850</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <zorder>label_background7</zorder>
+     <zorder>btn_back7</zorder>
+     <zorder>label_weight7</zorder>
+     <zorder>topbar7</zorder>
+     <zorder>btn_start7</zorder>
+     <zorder>weight_bar7</zorder>
+     <zorder>btn_home7</zorder>
+     <zorder>label_map7</zorder>
+     <zorder>label_check_place_text7</zorder>
+     <zorder>btn_change_place7</zorder>
     </widget>
     <widget class="QWidget" name="page_guiding">
      <widget class="QLabel" name="label_check_place_text8">
@@ -9845,6 +10026,41 @@ QProgressBar::chunk {
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
       </property>
      </widget>
+     <widget class="QLabel" name="label_background8">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>50</y>
+        <width>1600</width>
+        <height>850</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <zorder>label_background8</zorder>
+     <zorder>label_check_place_text8</zorder>
+     <zorder>btn_home8</zorder>
+     <zorder>weight_bar8</zorder>
+     <zorder>topbar8</zorder>
+     <zorder>label_live_map8</zorder>
+     <zorder>btn_back8</zorder>
+     <zorder>label_weight8</zorder>
+     <zorder>btn_pause8</zorder>
+     <zorder>btn_change_place8</zorder>
+     <zorder>label_distance_text8</zorder>
+     <zorder>label_distance_icon8</zorder>
+     <zorder>label_distance8</zorder>
+     <zorder>label_time_icon8</zorder>
+     <zorder>label_time_text8</zorder>
+     <zorder>label_time8</zorder>
     </widget>
     <widget class="QWidget" name="page_decision_after_arrived">
      <widget class="QPushButton" name="btn_go_next_goal9">
@@ -10861,6 +11077,37 @@ QProgressBar::chunk {
        <string>수고했어</string>
       </property>
      </widget>
+     <widget class="QLabel" name="label_background9">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>50</y>
+        <width>1600</width>
+        <height>850</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <zorder>label_background9</zorder>
+     <zorder>btn_go_next_goal9</zorder>
+     <zorder>weight_bar9</zorder>
+     <zorder>btn_back9</zorder>
+     <zorder>topbar9</zorder>
+     <zorder>label_arrived_text9</zorder>
+     <zorder>label_weight9</zorder>
+     <zorder>btn_home9</zorder>
+     <zorder>label_what9</zorder>
+     <zorder>btn_change_goal9</zorder>
+     <zorder>btn_wait9</zorder>
+     <zorder>btn_bye9</zorder>
     </widget>
     <widget class="QWidget" name="page_waiting">
      <widget class="QFrame" name="topbar10">
@@ -11391,116 +11638,6 @@ QProgressBar::chunk {
        </property>
       </widget>
      </widget>
-     <widget class="QLabel" name="label_camera_area10">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>70</y>
-        <width>1561</width>
-        <height>811</height>
-       </rect>
-      </property>
-      <property name="palette">
-       <palette>
-        <active>
-         <colorrole role="Button">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>204</red>
-            <green>204</green>
-            <blue>204</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Base">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>204</red>
-            <green>204</green>
-            <blue>204</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Window">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>204</red>
-            <green>204</green>
-            <blue>204</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </active>
-        <inactive>
-         <colorrole role="Button">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>204</red>
-            <green>204</green>
-            <blue>204</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Base">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>204</red>
-            <green>204</green>
-            <blue>204</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Window">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>204</red>
-            <green>204</green>
-            <blue>204</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </inactive>
-        <disabled>
-         <colorrole role="Button">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>204</red>
-            <green>204</green>
-            <blue>204</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Base">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>204</red>
-            <green>204</green>
-            <blue>204</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Window">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>204</red>
-            <green>204</green>
-            <blue>204</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </disabled>
-       </palette>
-      </property>
-      <property name="font">
-       <font>
-        <weight>50</weight>
-        <bold>false</bold>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: #cccccc;</string>
-      </property>
-     </widget>
      <widget class="QPushButton" name="btn_home10">
       <property name="geometry">
        <rect>
@@ -11839,10 +11976,10 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_imback10">
       <property name="geometry">
        <rect>
-        <x>600</x>
-        <y>680</y>
-        <width>391</width>
-        <height>60</height>
+        <x>650</x>
+        <y>660</y>
+        <width>341</width>
+        <height>71</height>
        </rect>
       </property>
       <property name="font">
@@ -11866,6 +12003,53 @@ QProgressBar::chunk {
        <string>나 왔어</string>
       </property>
      </widget>
+     <widget class="QLabel" name="label_background10">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>50</y>
+        <width>1600</width>
+        <height>850</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_arcs_img10">
+      <property name="geometry">
+       <rect>
+        <x>530</x>
+        <y>200</y>
+        <width>581</width>
+        <height>561</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>icon/로봇음성2.png</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <zorder>label_background10</zorder>
+     <zorder>topbar10</zorder>
+     <zorder>btn_home10</zorder>
+     <zorder>weight_bar10</zorder>
+     <zorder>label_waiting_text10</zorder>
+     <zorder>label_weight10</zorder>
+     <zorder>btn_back10</zorder>
+     <zorder>label_arcs_img10</zorder>
+     <zorder>btn_imback10</zorder>
     </widget>
     <widget class="QWidget" name="page_user_valid">
      <widget class="QPushButton" name="btn_home11">
@@ -12760,7 +12944,7 @@ QProgressBar::chunk {
 </string>
       </property>
       <property name="text">
-       <string>#전화번호 뒷자리*  ex) #3631*</string>
+       <string>#탑승번호 마지막 4자리   ex) #3631*</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -13162,6 +13346,45 @@ QProgressBar::chunk {
        <string>0</string>
       </property>
      </widget>
+     <widget class="QLabel" name="label_background11">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>50</y>
+        <width>1600</width>
+        <height>850</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <zorder>label_background11</zorder>
+     <zorder>btn_home11</zorder>
+     <zorder>btn_back11</zorder>
+     <zorder>weight_bar11</zorder>
+     <zorder>topbar11</zorder>
+     <zorder>label_ps_text11</zorder>
+     <zorder>label_weight11</zorder>
+     <zorder>label_ps_hint11</zorder>
+     <zorder>btn_1</zorder>
+     <zorder>btn_2</zorder>
+     <zorder>btn_3</zorder>
+     <zorder>btn_4</zorder>
+     <zorder>btn_5</zorder>
+     <zorder>btn_6</zorder>
+     <zorder>btn_9</zorder>
+     <zorder>btn_7</zorder>
+     <zorder>btn_8</zorder>
+     <zorder>btn_sharp</zorder>
+     <zorder>btn_star</zorder>
+     <zorder>btn_0</zorder>
     </widget>
     <widget class="QWidget" name="page_bye">
      <widget class="QPushButton" name="btn_home12">
@@ -13977,10 +14200,10 @@ QProgressBar::chunk {
      <widget class="QLabel" name="label_bye_text12">
       <property name="geometry">
        <rect>
-        <x>810</x>
-        <y>340</y>
-        <width>671</width>
-        <height>241</height>
+        <x>920</x>
+        <y>520</y>
+        <width>491</width>
+        <height>91</height>
        </rect>
       </property>
       <property name="font">
@@ -14030,10 +14253,10 @@ QProgressBar::chunk {
      <widget class="QLabel" name="label_bye_text12_2">
       <property name="geometry">
        <rect>
-        <x>810</x>
-        <y>530</y>
-        <width>591</width>
-        <height>111</height>
+        <x>920</x>
+        <y>620</y>
+        <width>321</width>
+        <height>51</height>
        </rect>
       </property>
       <property name="font">
@@ -14056,8 +14279,8 @@ QProgressBar::chunk {
      <widget class="QLabel" name="label_bye_icon12">
       <property name="geometry">
        <rect>
-        <x>1170</x>
-        <y>540</y>
+        <x>1200</x>
+        <y>600</y>
         <width>101</width>
         <height>71</height>
        </rect>
@@ -14088,13 +14311,13 @@ QProgressBar::chunk {
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="label_airplane_icon12">
+     <widget class="QLabel" name="label_arcs_img_2">
       <property name="geometry">
        <rect>
         <x>200</x>
-        <y>130</y>
-        <width>631</width>
-        <height>391</height>
+        <y>150</y>
+        <width>691</width>
+        <height>551</height>
        </rect>
       </property>
       <property name="font">
@@ -14114,7 +14337,7 @@ QProgressBar::chunk {
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>icon/즐거운여행.png</pixmap>
+       <pixmap>icon/로봇음성2.png</pixmap>
       </property>
       <property name="scaledContents">
        <bool>true</bool>
@@ -14123,6 +14346,35 @@ QProgressBar::chunk {
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
       </property>
      </widget>
+     <widget class="QLabel" name="label_background12">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>50</y>
+        <width>1600</width>
+        <height>850</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <zorder>label_background12</zorder>
+     <zorder>btn_home12</zorder>
+     <zorder>btn_back12</zorder>
+     <zorder>weight_bar12</zorder>
+     <zorder>topbar12</zorder>
+     <zorder>label_bye_text12</zorder>
+     <zorder>label_weight12</zorder>
+     <zorder>label_bye_text12_2</zorder>
+     <zorder>label_bye_icon12</zorder>
+     <zorder>label_arcs_img_2</zorder>
     </widget>
     <widget class="QWidget" name="page_charging">
      <property name="styleSheet">
