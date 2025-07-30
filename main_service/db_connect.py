@@ -56,7 +56,7 @@ class ARCSDatabaseHandler:
             results = cursor.fetchall()
         return results
         
-    # ARCS 업데이트 사용정보
+    # ARCS 사용정보 업데이트 
     def update_arcs_status(connection, robot_id, user_id, task_id, loading):
         table = f"ARCS_{robot_id}"
         query = f"""
@@ -67,7 +67,8 @@ class ARCSDatabaseHandler:
         with connection.cursor() as cursor:
             cursor.execute(query, (user_id, task_id, loading, robot_id))
         connection.commit()
-    # ARCS 업데이트 상태
+
+    # ARCS 상태 업데이트 
     def update_arcs_position(connection, robot_id, pos_x, pos_y, battery):
         table = f"ARCS_{robot_id}"
         query = f"""
@@ -105,3 +106,25 @@ class ARCSDatabaseHandler:
             cursor.execute("UPDATE PLACE SET total = total + visitor")
             cursor.execute("UPDATE PLACE SET visitor = 0")
         connection.commit()
+
+    # ADMIN 로그인 확인
+    def check_admin_login(self, username, password):
+        """
+        ADMIN 테이블에서 username과 password가 일치하는지 확인
+        """
+        query = "SELECT COUNT(*) AS count FROM admin WHERE username = %s AND password = %s"
+        with self.connection.cursor() as cursor:
+            cursor.execute(query, (username, password))
+            result = cursor.fetchone()
+            return result["count"] > 0
+        
+    # ARCS_# 조회
+    def get_arcs_status(self, robot_id):
+        """
+        ARCS_#{robot_id} 테이블의 전체 상태를 조회
+        """
+        table_name = f"ARCS_{robot_id}"
+        query = f"SELECT * FROM {table_name}"
+        with self.connection.cursor() as cursor:
+            cursor.execute(query)
+            return cursor.fetchall()
