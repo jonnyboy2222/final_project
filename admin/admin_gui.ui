@@ -12,8 +12,6 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="mainVerticalLayout">
-
-    <!-- Login Section -->
     <item>
      <layout class="QHBoxLayout" name="loginLayout">
       <item>
@@ -49,15 +47,14 @@
       </item>
      </layout>
     </item>
-
-    <!-- Tab Section -->
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="enabled">
        <bool>false</bool>
       </property>
-
-      <!-- Robot Management Tab -->
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
       <widget class="QWidget" name="robotManagementTab">
        <attribute name="title">
         <string>로봇 관리용</string>
@@ -66,28 +63,22 @@
         <item>
          <layout class="QHBoxLayout" name="mapStateLayout">
           <item>
-           <widget class="QLabel" name="mapLabel">
-            <property name="text">
-             <string>Map: QLabel</string>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>600</width>
-              <height>400</height>
-             </size>
+           <widget class="QGraphicsView" name="mapView">
+            <property name="enabled">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QLabel" name="robotStateLabel">
-            <property name="text">
-             <string>Robot State</string>
-            </property>
             <property name="minimumSize">
              <size>
               <width>200</width>
               <height>400</height>
              </size>
+            </property>
+            <property name="text">
+             <string>Robot State</string>
             </property>
            </widget>
           </item>
@@ -98,8 +89,6 @@
         </item>
        </layout>
       </widget>
-
-      <!-- DB Query Tab -->
       <widget class="QWidget" name="dbQueryTab">
        <attribute name="title">
         <string>DB 조회 tab</string>
@@ -144,9 +133,15 @@
         </item>
         <item row="3" column="1">
          <layout class="QHBoxLayout">
-          <item><widget class="QComboBox" name="hourCombo"/></item>
-          <item><widget class="QSpinBox" name="minuteSpin"/></item>
-          <item><widget class="QSpinBox" name="secondSpin"/></item>
+          <item>
+           <widget class="QComboBox" name="hourCombo"/>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="minuteSpin"/>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="secondSpin"/>
+          </item>
          </layout>
         </item>
         <item row="4" column="0" colspan="2">
