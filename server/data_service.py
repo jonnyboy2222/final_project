@@ -18,8 +18,8 @@ class ARCSDataService:
         self.udp_ip = '192.168.0.252'
         self.udp_port = 54321
 
-        # Vision 서버 (TCP 명령 전송용)
-        self.tcp_vision_port = 54322
+        self.camera = 0
+        # self.camera == 0 if "LD" self.camera == 1 if "FW"
 
         # LLM 서버 (TCP)
         self.tcp_ip = '192.168.0.33'
@@ -30,7 +30,8 @@ class ARCSDataService:
 
     # 영상 -> vision 서버(UDP):  영상 전송 스레드
     def video_to_vision_server(self):
-        cap = cv2.VideoCapture(0)
+
+        cap = cv2.VideoCapture(self.camera)
         cap.set(cv2.CAP_PROP_FPS, 30)
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 320)
@@ -60,6 +61,12 @@ class ARCSDataService:
         cap.release()
         udp_client.close()
         cv2.destroyAllWindows()
+
+    def convert_camera(self, cmd):
+        if cmd == "FW":
+            self.camera = 1
+        elif cmd == "LD":
+            self.camera = 0
 
     # 음성 인식 및 텍스트 전송
     def voice_to_llm_server(self):
@@ -123,17 +130,6 @@ class ARCSDataService:
         except Exception as e:
             print(f"[TCP ERROR] {e}")
 
-    # ===== Vision 명령 전달용 TCP (fw, ld 명령 시) =====
-    def send_cmd_to_vision_server(self, cmd: str):
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                sock.connect((self.udp_ip, self.tcp_vision_port))
-                sock.sendall(cmd.encode('utf-8'))
-                print(f"[SerialCMD] Vision 서버로 명령 전송: {cmd}")
-
-        except Exception as e:
-            print(f"[SerialCMD] Vision 명령 전송 오류: {e}")
-
     # ===== 시리얼 수신기 =====
     def serial_listener(self):
         SERIAL_PORT = '/dev/ttyUSB0'  # 포트 확인 필요
@@ -157,7 +153,7 @@ class ARCSDataService:
 
     def handle_serial_command(self, cmd: str):
         if cmd in ["FW", "LD"]:
-            self.send_cmd_to_vision_server(cmd)
+            self.convert_camera(cmd)
 
         elif cmd in ["PS", "RT"]:
             print("[Serial] 전송 중단 명령 수신 → Vision/Chat 중지")
@@ -186,6 +182,7 @@ class ARCSDataService:
         except KeyboardInterrupt:
             self.running = False
             print("Shutting down...")
+
 if __name__ == "__main__":
     controller = ARCSDataService()
     controller.start_all()
