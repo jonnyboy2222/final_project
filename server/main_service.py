@@ -187,7 +187,7 @@ def send_pos_to_llm(current_pos_bytes):
         print(f"[LLM TCP SEND ERROR] {e}")
 
 
-def start_user_tcp_server(tcp_ip, user_tcp_port, running, vision_data_queue, user_name_queue, robot_id_queue, already_checked):
+def start_user_tcp_server(tcp_ip, user_tcp_port, running, vision_data_queue, robot_id_queue, already_checked):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
         server.bind((tcp_ip, user_tcp_port))
         server.listen()
@@ -195,9 +195,9 @@ def start_user_tcp_server(tcp_ip, user_tcp_port, running, vision_data_queue, use
 
         while running.value:
             conn, addr = server.accept()
-            threading.Thread(target=user_tcp_receiver, args=(conn, addr, vision_data_queue, user_name_queue, robot_id_queue, already_checked), daemon=True).start()
+            threading.Thread(target=user_tcp_receiver, args=(conn, addr, vision_data_queue, robot_id_queue, already_checked), daemon=True).start()
 
-def user_tcp_receiver(conn, addr, vision_data_queue, user_name_queue, robot_id_queue, already_checked):
+def user_tcp_receiver(conn, addr, vision_data_queue, robot_id_queue, already_checked):
     print(f"[USER] Connected from {addr}")
     try:
         arcs_db = ARCSDatabaseHandler()
@@ -256,8 +256,6 @@ def user_tcp_receiver(conn, addr, vision_data_queue, user_name_queue, robot_id_q
 
         if user_info:
             arcs_db.save_user(user_info)
-
-            user_name_queue.put(user_info["name"])
 
         # CK, LD, FW, RT, PS, FR, ED, KG, AR
         if command in ("LD", "ED"):
@@ -411,7 +409,7 @@ def main_controller_udp_receiver(conn, addr, main_ctrl_data_queue, pos_queue, ad
     finally:
         conn.close()
 
-def start_admin_tcp_server(tcp_ip, admin_tcp_port, running, admin_pos_queue, user_name_queue, robot_id_queue):
+def start_admin_tcp_server(tcp_ip, admin_tcp_port, running, admin_pos_queue, robot_id_queue):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
         server.bind((tcp_ip, admin_tcp_port))
         server.listen()
@@ -419,9 +417,9 @@ def start_admin_tcp_server(tcp_ip, admin_tcp_port, running, admin_pos_queue, use
 
         while running.value:
             conn, addr = server.accept()
-            threading.Thread(target=admin_tcp_receiver, args=(conn, addr, admin_ip, admin_port, admin_pos_queue, user_name_queue, robot_id_queue), daemon=True).start()
+            threading.Thread(target=admin_tcp_receiver, args=(conn, addr, admin_ip, admin_port, admin_pos_queue, robot_id_queue), daemon=True).start()
 
-def admin_tcp_receiver(conn, addr, admin_ip, admin_port, admin_pos_queue, user_name_queue, robot_id_queue):
+def admin_tcp_receiver(conn, addr, admin_ip, admin_port, admin_pos_queue, robot_id_queue):
     print(f"[Admin] Connected from {addr}")
     try:
         # 1. Header (1 byte)
@@ -462,7 +460,7 @@ def admin_tcp_receiver(conn, addr, admin_ip, admin_port, admin_pos_queue, user_n
             json_data = json.loads(data.decode('utf-8'))
             print(f"[Admin] Login info: {json_data}")
             
-        data_to_admin_pc(admin_ip, admin_port, command, json_data, admin_pos_queue, user_name_queue, robot_id_queue)
+        data_to_admin_pc(admin_ip, admin_port, command, json_data, admin_pos_queue, robot_id_queue)
 
         
 
@@ -473,7 +471,7 @@ def admin_tcp_receiver(conn, addr, admin_ip, admin_port, admin_pos_queue, user_n
 
 
 # Admin PC로 데이터 전송
-def data_to_admin_pc(admin_ip, admin_port, command, json_data, admin_pos_queue, user_name_queue, robot_id_queue):
+def data_to_admin_pc(admin_ip, admin_port, command, json_data, admin_pos_queue, robot_id_queue):
     try:
         arcs_db = ARCSDatabaseHandler()
 
@@ -536,17 +534,8 @@ def data_to_admin_pc(admin_ip, admin_port, command, json_data, admin_pos_queue, 
             arcs_list = arcs_db.get_arcs()
 
             # user, task, loading, using, battery, pos_x, pos_y, status_time
-            rs_dict = {
-                "user": arcs_list[1],
-                "task": arcs_list[2],
-                "loading": arcs_list[3],
-                "using": arcs_list[4],
-                "battery": arcs_list[5],
-                "current_position": (arcs_list[6], arcs_list[7]),
-                "status_time": arcs_list[8]
-            }
             
-            rs_json_bytes = json.dumps(rs_dict).encode('utf-8')
+            rs_json_bytes = json.dumps(arcs_list).encode('utf-8')
             rs_length_bytes = struct.pack('>I', len(rs_json_bytes))
             rs_command_bytes = struct.pack('>2s', command.encode('ascii'))
 
@@ -554,24 +543,19 @@ def data_to_admin_pc(admin_ip, admin_port, command, json_data, admin_pos_queue, 
             admin_conn.sendall(rs_packet)
 
         elif command == "UI":
-            # name, ticket, robot id
-            user_name = user_name_queue.get()
-            user_info = arcs_db.get_users(user_name)
+            # robot_id, name, ticket, created
+            robot_id = json_data.get("robot_id")
+            user_name = json_data.get("name")
+            ticket = json_data.get("ticket")
+            created = json_data.get("created")
 
-            # name, boarding, departure, gate, sex, age, seat, from, to
-            user_info_dict = {
-                "name": user_info[0],
-                "boarding": user_info[1],
-                "departure": user_info[2],
-                "gate": user_info[3],
-                "sex": user_info[4],
-                "age": user_info[5],
-                "seat": user_info[6],
-                "from": user_info[7],
-                "to": user_info[8]
-            }
 
-            ui_json_bytes = json.dumps(user_info_dict).encode('utf-8')
+            user_info = arcs_db.get_users(robot_id, user_name, ticket, created)
+
+            
+
+            # name, ticket, boarding, departure, gate, sex, age, seat, from, to
+            ui_json_bytes = json.dumps(user_info).encode('utf-8')
             ui_length_bytes = struct.pack('>I', len(ui_json_bytes))
             ui_command_bytes = struct.pack('>2s', command.encode('ascii'))
 
@@ -643,7 +627,7 @@ def data_to_user_pc(user_ip, user_port, running, main_ctrl_data_queue, llm_data_
                 user_conn.sendall(packet)
 
             else:
-                dummy_com = "hi"
+                dummy_com = "AR"
                 dummy_json = {
                     "des_coor": (123, 123)
                 }
@@ -679,7 +663,6 @@ if __name__ == "__main__":
     main_ctrl_data_queue = Queue()
 
     user_data_queue = Queue()
-    user_name_queue = Queue()
 
     pos_queue = Queue()
     admin_pos_queue = Queue()
@@ -688,8 +671,8 @@ if __name__ == "__main__":
 
     p1 = Process(target=start_vision_tcp_server, args=(tcp_ip, vision_tcp_port, running, vision_data_queue))
     p2 = Process(target=start_llm_tcp_server, args=(tcp_ip, llm_tcp_port, running, llm_data_queue, pos_queue))
-    p3 = Process(target=start_user_tcp_server, args=(tcp_ip, user_tcp_port, running, vision_data_queue, user_name_queue, robot_id_queue, already_checked))
-    p4 = Process(target=start_admin_tcp_server, args=(tcp_ip, admin_tcp_port, running, admin_pos_queue, user_name_queue, robot_id_queue))
+    p3 = Process(target=start_user_tcp_server, args=(tcp_ip, user_tcp_port, running, vision_data_queue, robot_id_queue, already_checked))
+    p4 = Process(target=start_admin_tcp_server, args=(tcp_ip, admin_tcp_port, running, admin_pos_queue, robot_id_queue))
     p5 = Process(target=start_main_controller_udp_server, args=(udp_ip, udp_port, running, main_ctrl_data_queue, pos_queue, admin_pos_queue, user_data_queue))
     p6 = Process(target=data_to_user_pc, args=(user_ip, user_port, running, main_ctrl_data_queue, llm_data_queue, user_data_queue))
 
