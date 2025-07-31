@@ -4,6 +4,8 @@ import datetime
 import socket
 import json
 import re
+import struct
+import threading
 import numpy as np
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QLabel, QPushButton, QTableWidgetItem
@@ -57,7 +59,7 @@ class CameraThread(QThread):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        loadUi("client.ui", self)
+        loadUi("/home/dong/project_local/final_project/user_gui/client.ui", self)
         #state
         self.selected_function = None
         #인증번호 관련
@@ -74,7 +76,9 @@ class MainWindow(QMainWindow):
         self.selected_keys = [] #page_selected_place에서 버튼 색 조절하려고 사용
         self.arrived_place = [] #도착한 장소 누적
         #가이드 중 일시정지 사용 위해서 
-        self.is_paused = False
+        self.is_paused_g = False
+        #팔로잉 중 일시정지 사용 위해서
+        self.is_paused_f = False
         # camera
         self.camera = CameraThread(0)
         self.scanned_data = []
@@ -161,21 +165,6 @@ class MainWindow(QMainWindow):
 
     #홈 버튼 누르면 하는 일
     def on_home_clicked(self):
-        #초기화
-        #스캔 관련
-        self.scanned_data = []
-        #선택한 기능 관련
-        self.selected_function = None
-        #인증번호 관련
-        self.correct_password = ""
-        self.pushed_valid_btn = ""
-        #목적지 관련
-        self.destinations = []  
-        self.selected_keys = [] 
-        self.arrived_place = [] 
-        for btn in self.findChildren(QPushButton):
-            if btn.objectName().startswith("btn_place_"):
-                btn.setStyleSheet("")
         #메인으로
         self.show_page('main')
 
@@ -207,7 +196,21 @@ class MainWindow(QMainWindow):
     #main_page 들어갔을 때 하는 일
     def _enter_main(self):
         print(self.selected_function)
-        self.selected_function=None
+        #초기화 관련 함수
+        #스캔 관련
+        self.scanned_data = []
+        #선택한 기능 관련
+        self.selected_function = None
+        #인증번호 관련
+        self.correct_password = ""
+        self.pushed_valid_btn = ""
+        #목적지 관련
+        self.destinations = []  
+        self.selected_keys = [] 
+        self.arrived_place = [] 
+        for btn in self.findChildren(QPushButton):
+            if btn.objectName().startswith("btn_place_"):
+                btn.setStyleSheet("")
 
     #following 또는 leading 중에 뭐 눌렀는 지 저장
     def _select_and_scan(self, mode):
@@ -282,6 +285,7 @@ class MainWindow(QMainWindow):
         #qr 정보 얻기
         info = data.split(',')
         self.scanned_data = info
+        print(self.scanned_data)
         # 탑승권 번호 마지막 4자리 correct_password로 저장.
         last4 = str(info[0])[-4:]
         self.correct_password = f"#{last4}*"
@@ -307,7 +311,7 @@ class MainWindow(QMainWindow):
         print(self.selected_function)
         # 스캔된 데이터로 테이블 채우기
         for i, val in enumerate(self.scanned_data):
-            self.tableWidget3.setItem(i-1, 1, QTableWidgetItem(str(val)))
+            self.tableWidget3.setItem(i, 1, QTableWidgetItem(str(val)))
 
     #다시 스캔해야 할 경우
     def _on_retry3(self):
@@ -365,9 +369,12 @@ class MainWindow(QMainWindow):
     #버튼 연결
     def _connect_page_following(self):
         self.btn_back5.clicked.connect(lambda: self.show_page('loading'))
+        self.btn_end_following5.clicked.connect(lambda: self.show_page('bye'))
+        self.btn_pause5.clicked.connect(self._toggle_following_pause)
 
     #page_following 들어갔을 때 하는 일
     def _enter_following(self):
+        print(self.selected_function)
         self.follow_idx=0
         self.follow_timer=QTimer(self)
         self.follow_timer.timeout.connect(self._update_follow_text)
@@ -385,6 +392,15 @@ class MainWindow(QMainWindow):
         msgs=["동행 중이에요 :)","너무 빨라요, 조금만 기다려줘요"]
         self.label_following_text5.setText(msgs[self.follow_idx])
         self.follow_idx=(self.follow_idx+1)%2
+
+        #btn_pause 텍스트 변경
+    def _toggle_following_pause(self):
+        self.is_paused_f = not self.is_paused_f
+        if self.is_paused_f:
+            self.btn_pause5.setText("주행시작")
+            self.show_page("waiting")
+        else:
+            self.btn_pause5.setText("일시정지")
 
 # ===========================================================================
     # 6) page_select_place
@@ -479,9 +495,10 @@ class MainWindow(QMainWindow):
 
     #btn_pause 텍스트 변경
     def _toggle_guiding_pause(self):
-        self.is_paused = not self.is_paused
-        if self.is_paused:
+        self.is_paused_g = not self.is_paused_g
+        if self.is_paused_g:
             self.btn_pause8.setText("이어서 안내시작")
+            self.show_page("user_valid")
         else:
             self.btn_pause8.setText("일시정지")
 
@@ -548,14 +565,20 @@ class MainWindow(QMainWindow):
     def _enter_user_valid(self):
         print(self.selected_function)
         self.pushed_valid_btn = ''
-        self.label_ps_text11.setText('비밀번호를 입력해주세요')
+        self.label_ps_text11.setText('돌아오셨나요? 비밀번호를 입력해주세요')
 
     #비밀번호키 입력값 기억, 비교, 결과
     def _handle_user_input(self, key):
         self.pushed_valid_btn += key
         if key == '*':
             if self.pushed_valid_btn == self.correct_password:
-                self.show_page('decision')
+                if self.selected_function == 'leading_mode':
+                    if self.before_page  == 'guiding':
+                        self.show_page('guiding')
+                    else:
+                        self.show_page('decision')
+                else:
+                    self.show_page('following')
             else:
                 self.label_ps_text11.setText("인증 실패")
                 self.pushed_valid_btn = ''
@@ -569,6 +592,7 @@ class MainWindow(QMainWindow):
 
     def _enter_bye(self):
         print(self.selected_function)
+        self.selected_function = None
         self.blink = False
         self.bye_timer = QTimer(self)
         self.bye_timer.timeout.connect(self._blink_bye)

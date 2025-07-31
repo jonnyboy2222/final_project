@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1600</width>
-    <height>901</height>
+    <height>900</height>
    </rect>
   </property>
   <property name="palette">
@@ -2635,7 +2635,7 @@ QPushButton:hover {
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+       <pixmap>icon/background.jpeg</pixmap>
       </property>
       <property name="scaledContents">
        <bool>true</bool>
@@ -2654,10 +2654,10 @@ QPushButton:hover {
      <widget class="QLabel" name="label_camera_area2">
       <property name="geometry">
        <rect>
-        <x>20</x>
-        <y>70</y>
-        <width>1561</width>
-        <height>811</height>
+        <x>160</x>
+        <y>150</y>
+        <width>1281</width>
+        <height>661</height>
        </rect>
       </property>
       <property name="palette">
@@ -3286,8 +3286,8 @@ QPushButton:hover {
      <widget class="QLabel" name="label_scan_text2">
       <property name="geometry">
        <rect>
-        <x>120</x>
-        <y>110</y>
+        <x>180</x>
+        <y>190</y>
         <width>1021</width>
         <height>131</height>
        </rect>
@@ -3564,7 +3564,7 @@ QPushButton:hover {
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+       <pixmap>icon/background.jpeg</pixmap>
       </property>
       <property name="scaledContents">
        <bool>true</bool>
@@ -5229,7 +5229,7 @@ QTableWidget::item {
        <bool>true</bool>
       </property>
       <property name="rowCount">
-       <number>9</number>
+       <number>10</number>
       </property>
       <property name="columnCount">
        <number>2</number>
@@ -5256,7 +5256,7 @@ QTableWidget::item {
        <bool>false</bool>
       </attribute>
       <attribute name="verticalHeaderDefaultSectionSize">
-       <number>61</number>
+       <number>55</number>
       </attribute>
       <attribute name="verticalHeaderHighlightSections">
        <bool>true</bool>
@@ -5276,49 +5276,55 @@ QTableWidget::item {
       <row/>
       <row/>
       <row/>
+      <row/>
       <column/>
       <column/>
       <item row="0" column="0">
        <property name="text">
-        <string>이름</string>
+        <string>탑승권번호</string>
        </property>
       </item>
       <item row="1" column="0">
        <property name="text">
-        <string>나이</string>
+        <string>이름</string>
        </property>
       </item>
       <item row="2" column="0">
        <property name="text">
-        <string>성별</string>
+        <string>나이</string>
        </property>
       </item>
       <item row="3" column="0">
        <property name="text">
-        <string>출국지</string>
+        <string>성별</string>
        </property>
       </item>
       <item row="4" column="0">
        <property name="text">
-        <string>입국지</string>
+        <string>출국지</string>
        </property>
       </item>
       <item row="5" column="0">
        <property name="text">
-        <string>좌석</string>
+        <string>입국지</string>
        </property>
       </item>
       <item row="6" column="0">
        <property name="text">
-        <string>탑승게이트</string>
+        <string>좌석</string>
        </property>
       </item>
       <item row="7" column="0">
        <property name="text">
-        <string>탑승시간</string>
+        <string>탑승게이트</string>
        </property>
       </item>
       <item row="8" column="0">
+       <property name="text">
+        <string>탑승시간</string>
+       </property>
+      </item>
+      <item row="9" column="0">
        <property name="text">
         <string>출발시간</string>
        </property>
@@ -5337,7 +5343,7 @@ QTableWidget::item {
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+       <pixmap>icon/background.jpeg</pixmap>
       </property>
       <property name="scaledContents">
        <bool>true</bool>
@@ -5954,7 +5960,7 @@ QProgressBar::chunk {
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+       <pixmap>icon/background.jpeg</pixmap>
       </property>
       <property name="scaledContents">
        <bool>true</bool>
@@ -6848,7 +6854,7 @@ QProgressBar::chunk {
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+       <pixmap>icon/background.jpeg</pixmap>
       </property>
       <property name="scaledContents">
        <bool>true</bool>
@@ -6858,9 +6864,9 @@ QProgressBar::chunk {
       <property name="geometry">
        <rect>
         <x>500</x>
-        <y>290</y>
-        <width>621</width>
-        <height>471</height>
+        <y>250</y>
+        <width>611</width>
+        <height>421</height>
        </rect>
       </property>
       <property name="text">
@@ -6873,6 +6879,66 @@ QProgressBar::chunk {
        <bool>true</bool>
       </property>
      </widget>
+     <widget class="QPushButton" name="btn_end_following5">
+      <property name="geometry">
+       <rect>
+        <x>850</x>
+        <y>710</y>
+        <width>341</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>-1</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton {
+    background-color: #d6e9f9;
+    border: none;
+    border-radius: 20px;  /* 숫자 키울수록 더 둥글게 */
+    padding: 8px 16px;    /* 내부 여백 */
+    font-size: 20px;      /* 글자 크기(선택사항) */
+}
+</string>
+      </property>
+      <property name="text">
+       <string>사용 종료할래</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_pause5">
+      <property name="geometry">
+       <rect>
+        <x>460</x>
+        <y>710</y>
+        <width>341</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>-1</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton {
+    background-color: #d6e9f9;
+    border: none;
+    border-radius: 20px;  /* 숫자 키울수록 더 둥글게 */
+    padding: 8px 16px;    /* 내부 여백 */
+    font-size: 20px;      /* 글자 크기(선택사항) */
+}
+</string>
+      </property>
+      <property name="text">
+       <string>일시정지</string>
+      </property>
+     </widget>
      <zorder>label_background5</zorder>
      <zorder>topbar5</zorder>
      <zorder>label_following_text5</zorder>
@@ -6881,6 +6947,8 @@ QProgressBar::chunk {
      <zorder>weight_bar5</zorder>
      <zorder>label_weight5</zorder>
      <zorder>label_arcs_img</zorder>
+     <zorder>btn_end_following5</zorder>
+     <zorder>btn_pause5</zorder>
     </widget>
     <widget class="QWidget" name="page_select_place">
      <widget class="QLabel" name="label_weight6">
@@ -7746,77 +7814,11 @@ QProgressBar::chunk {
        </size>
       </property>
      </widget>
-     <widget class="QLabel" name="label_map6">
-      <property name="geometry">
-       <rect>
-        <x>60</x>
-        <y>180</y>
-        <width>1221</width>
-        <height>631</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QLabel {
-    border: 2px solid #CCCCCC;
-    border-radius: 20px;
-    background-color: transparent;  /* 배경은 필요에 따라 투명 */
-    padding: 0px;                   /* 안쪽 여백 없음 = 꽉 채움 */
-}
-
-</string>
-      </property>
-      <property name="text">
-       <string>TextLabel</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_predict_time6">
-      <property name="geometry">
-       <rect>
-        <x>1330</x>
-        <y>260</y>
-        <width>181</width>
-        <height>91</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>18</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>예상  소요시간</string>
-      </property>
-      <property name="wordWrap">
-       <bool>true</bool>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_time6">
-      <property name="geometry">
-       <rect>
-        <x>1320</x>
-        <y>380</y>
-        <width>241</width>
-        <height>81</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>30</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>15 분 31초</string>
-      </property>
-     </widget>
      <widget class="QPushButton" name="btn_start6">
       <property name="geometry">
        <rect>
-        <x>1390</x>
-        <y>630</y>
+        <x>1460</x>
+        <y>670</y>
         <width>111</width>
         <height>101</height>
        </rect>
@@ -7845,56 +7847,56 @@ QProgressBar::chunk {
        <string>시작</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="btn_place_shop6">
+     <widget class="QPushButton" name="btn_place_info_desk">
       <property name="geometry">
        <rect>
-        <x>1020</x>
-        <y>460</y>
+        <x>820</x>
+        <y>640</y>
         <width>105</width>
         <height>31</height>
        </rect>
       </property>
       <property name="text">
-       <string>면세점</string>
+       <string>안내 데스크</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="btn_place_toilet6">
+     <widget class="QPushButton" name="btn_place_restaurant_K">
       <property name="geometry">
        <rect>
-        <x>720</x>
-        <y>310</y>
+        <x>520</x>
+        <y>220</y>
         <width>105</width>
         <height>31</height>
        </rect>
       </property>
       <property name="text">
-       <string>화장실</string>
+       <string>한식당</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="btn_place_wait6">
+     <widget class="QPushButton" name="btn_place_gate1">
       <property name="geometry">
        <rect>
-        <x>340</x>
-        <y>380</y>
+        <x>110</x>
+        <y>220</y>
         <width>105</width>
         <height>31</height>
        </rect>
       </property>
       <property name="text">
-       <string>대기실</string>
+       <string>게이트1</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="btn_place_gate6">
+     <widget class="QPushButton" name="btn_place_gate2">
       <property name="geometry">
        <rect>
-        <x>150</x>
-        <y>720</y>
+        <x>110</x>
+        <y>290</y>
         <width>105</width>
         <height>31</height>
        </rect>
       </property>
       <property name="text">
-       <string>게이트</string>
+       <string>게이트2</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_background6">
@@ -7910,27 +7912,197 @@ QProgressBar::chunk {
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+       <pixmap>icon/background.jpeg</pixmap>
       </property>
       <property name="scaledContents">
        <bool>true</bool>
       </property>
      </widget>
+     <widget class="QGraphicsView" name="view_map6">
+      <property name="geometry">
+       <rect>
+        <x>60</x>
+        <y>180</y>
+        <width>1380</width>
+        <height>612</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QGraphicsView {
+    border: 2px solid #CCCCCC;
+    border-radius: 20px;
+    background-color: transparent;  /* 배경은 필요에 따라 투명 */
+    padding: 0px;                   /* 안쪽 여백 없음 = 꽉 채움 */
+}</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_shop_S">
+      <property name="geometry">
+       <rect>
+        <x>370</x>
+        <y>220</y>
+        <width>105</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>신세계 면세점</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_shop_L">
+      <property name="geometry">
+       <rect>
+        <x>380</x>
+        <y>320</y>
+        <width>105</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>롯데 면세점</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_restaurant_C">
+      <property name="geometry">
+       <rect>
+        <x>520</x>
+        <y>320</y>
+        <width>105</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>중식당</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_lounge">
+      <property name="geometry">
+       <rect>
+        <x>520</x>
+        <y>630</y>
+        <width>105</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>라운지</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_shop_H">
+      <property name="geometry">
+       <rect>
+        <x>270</x>
+        <y>390</y>
+        <width>105</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>현대 면세점</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_gate3">
+      <property name="geometry">
+       <rect>
+        <x>120</x>
+        <y>390</y>
+        <width>105</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>게이트3</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_toilet_e">
+      <property name="geometry">
+       <rect>
+        <x>240</x>
+        <y>320</y>
+        <width>105</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>화장실 동편</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_convenience_store">
+      <property name="geometry">
+       <rect>
+        <x>660</x>
+        <y>640</y>
+        <width>105</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>편의점</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_cafe">
+      <property name="geometry">
+       <rect>
+        <x>720</x>
+        <y>550</y>
+        <width>105</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>카페</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_smoking_zone">
+      <property name="geometry">
+       <rect>
+        <x>910</x>
+        <y>530</y>
+        <width>105</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>흡연실</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_toilet_w">
+      <property name="geometry">
+       <rect>
+        <x>240</x>
+        <y>220</y>
+        <width>105</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>화장실 서편</string>
+      </property>
+     </widget>
      <zorder>label_background6</zorder>
+     <zorder>view_map6</zorder>
      <zorder>label_weight6</zorder>
      <zorder>topbar6</zorder>
      <zorder>weight_bar6</zorder>
      <zorder>label_select_place_text6</zorder>
      <zorder>btn_back6</zorder>
      <zorder>btn_home6</zorder>
-     <zorder>label_map6</zorder>
-     <zorder>label_predict_time6</zorder>
-     <zorder>label_time6</zorder>
      <zorder>btn_start6</zorder>
-     <zorder>btn_place_shop6</zorder>
-     <zorder>btn_place_toilet6</zorder>
-     <zorder>btn_place_wait6</zorder>
-     <zorder>btn_place_gate6</zorder>
+     <zorder>btn_place_info_desk</zorder>
+     <zorder>btn_place_restaurant_K</zorder>
+     <zorder>btn_place_gate1</zorder>
+     <zorder>btn_place_gate2</zorder>
+     <zorder>btn_place_shop_S</zorder>
+     <zorder>btn_place_shop_L</zorder>
+     <zorder>btn_place_restaurant_C</zorder>
+     <zorder>btn_place_lounge</zorder>
+     <zorder>btn_place_shop_H</zorder>
+     <zorder>btn_place_gate3</zorder>
+     <zorder>btn_place_toilet_e</zorder>
+     <zorder>btn_place_convenience_store</zorder>
+     <zorder>btn_place_cafe</zorder>
+     <zorder>btn_place_smoking_zone</zorder>
+     <zorder>btn_place_toilet_w</zorder>
     </widget>
     <widget class="QWidget" name="page_check_goal">
      <widget class="QPushButton" name="btn_back7">
@@ -8612,10 +8784,10 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_start7">
       <property name="geometry">
        <rect>
-        <x>1370</x>
-        <y>350</y>
-        <width>161</width>
-        <height>131</height>
+        <x>1230</x>
+        <y>510</y>
+        <width>180</width>
+        <height>120</height>
        </rect>
       </property>
       <property name="font">
@@ -8803,29 +8975,6 @@ QProgressBar::chunk {
        </size>
       </property>
      </widget>
-     <widget class="QLabel" name="label_map7">
-      <property name="geometry">
-       <rect>
-        <x>60</x>
-        <y>180</y>
-        <width>1221</width>
-        <height>631</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QLabel {
-    border: 2px solid #CCCCCC;
-    border-radius: 20px;
-    background-color: transparent;  /* 배경은 필요에 따라 투명 */
-    padding: 0px;                   /* 안쪽 여백 없음 = 꽉 채움 */
-}
-
-</string>
-      </property>
-      <property name="text">
-       <string>TextLabel</string>
-      </property>
-     </widget>
      <widget class="QLabel" name="label_check_place_text7">
       <property name="geometry">
        <rect>
@@ -8855,10 +9004,10 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_change_place7">
       <property name="geometry">
        <rect>
-        <x>1380</x>
-        <y>550</y>
-        <width>151</width>
-        <height>141</height>
+        <x>1230</x>
+        <y>650</y>
+        <width>180</width>
+        <height>120</height>
        </rect>
       </property>
       <property name="font">
@@ -8898,22 +9047,82 @@ QProgressBar::chunk {
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+       <pixmap>icon/background.jpeg</pixmap>
       </property>
       <property name="scaledContents">
        <bool>true</bool>
       </property>
      </widget>
+     <widget class="QLabel" name="label_time_text7">
+      <property name="geometry">
+       <rect>
+        <x>1240</x>
+        <y>210</y>
+        <width>171</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>20</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>예상 소요시간</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_predicted_time7">
+      <property name="geometry">
+       <rect>
+        <x>1190</x>
+        <y>260</y>
+        <width>241</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>40</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>15분 21초</string>
+      </property>
+     </widget>
+     <widget class="QGraphicsView" name="view_map7">
+      <property name="geometry">
+       <rect>
+        <x>60</x>
+        <y>180</y>
+        <width>1380</width>
+        <height>612</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QGraphicsView {
+    border: 2px solid #CCCCCC;
+    border-radius: 20px;
+    background-color: transparent;  /* 배경은 필요에 따라 투명 */
+    padding: 0px;                   /* 안쪽 여백 없음 = 꽉 채움 */
+}</string>
+      </property>
+     </widget>
      <zorder>label_background7</zorder>
+     <zorder>view_map7</zorder>
      <zorder>btn_back7</zorder>
      <zorder>label_weight7</zorder>
      <zorder>topbar7</zorder>
      <zorder>btn_start7</zorder>
      <zorder>weight_bar7</zorder>
      <zorder>btn_home7</zorder>
-     <zorder>label_map7</zorder>
      <zorder>label_check_place_text7</zorder>
      <zorder>btn_change_place7</zorder>
+     <zorder>label_time_text7</zorder>
+     <zorder>label_predicted_time7</zorder>
     </widget>
     <widget class="QWidget" name="page_guiding">
      <widget class="QLabel" name="label_check_place_text8">
@@ -9631,29 +9840,6 @@ QProgressBar::chunk {
        </property>
       </widget>
      </widget>
-     <widget class="QLabel" name="label_live_map8">
-      <property name="geometry">
-       <rect>
-        <x>50</x>
-        <y>180</y>
-        <width>1501</width>
-        <height>541</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QLabel {
-    border: 2px solid #999999;
-    border-radius: 30px;
-    background-color: transparent;  /* 배경은 필요에 따라 투명 */
-    padding: 0px;                   /* 안쪽 여백 없음 = 꽉 채움 */
-}
-
-</string>
-      </property>
-      <property name="text">
-       <string>TextLabel</string>
-      </property>
-     </widget>
      <widget class="QPushButton" name="btn_back8">
       <property name="geometry">
        <rect>
@@ -9805,10 +9991,10 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_pause8">
       <property name="geometry">
        <rect>
-        <x>360</x>
-        <y>750</y>
-        <width>391</width>
-        <height>60</height>
+        <x>1380</x>
+        <y>610</y>
+        <width>161</width>
+        <height>71</height>
        </rect>
       </property>
       <property name="font">
@@ -9835,10 +10021,10 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_change_place8">
       <property name="geometry">
        <rect>
-        <x>840</x>
-        <y>750</y>
-        <width>391</width>
-        <height>60</height>
+        <x>1380</x>
+        <y>710</y>
+        <width>161</width>
+        <height>71</height>
        </rect>
       </property>
       <property name="font">
@@ -9865,15 +10051,15 @@ QProgressBar::chunk {
      <widget class="QLabel" name="label_distance_text8">
       <property name="geometry">
        <rect>
-        <x>920</x>
-        <y>620</y>
+        <x>1430</x>
+        <y>360</y>
         <width>41</width>
         <height>41</height>
        </rect>
       </property>
       <property name="font">
        <font>
-        <pointsize>10</pointsize>
+        <pointsize>13</pointsize>
         <weight>50</weight>
         <bold>false</bold>
        </font>
@@ -9891,10 +10077,10 @@ QProgressBar::chunk {
      <widget class="QLabel" name="label_distance_icon8">
       <property name="geometry">
        <rect>
-        <x>850</x>
-        <y>630</y>
-        <width>70</width>
-        <height>60</height>
+        <x>1340</x>
+        <y>360</y>
+        <width>91</width>
+        <height>81</height>
        </rect>
       </property>
       <property name="font">
@@ -9918,18 +10104,18 @@ QProgressBar::chunk {
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="label_distance8">
+     <widget class="QLabel" name="label_remained_distance8">
       <property name="geometry">
        <rect>
-        <x>910</x>
-        <y>650</y>
+        <x>1430</x>
+        <y>390</y>
         <width>141</width>
         <height>61</height>
        </rect>
       </property>
       <property name="font">
        <font>
-        <pointsize>15</pointsize>
+        <pointsize>20</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -9947,10 +10133,10 @@ QProgressBar::chunk {
      <widget class="QLabel" name="label_time_icon8">
       <property name="geometry">
        <rect>
-        <x>580</x>
-        <y>630</y>
-        <width>70</width>
-        <height>60</height>
+        <x>1340</x>
+        <y>240</y>
+        <width>91</width>
+        <height>81</height>
        </rect>
       </property>
       <property name="font">
@@ -9977,15 +10163,15 @@ QProgressBar::chunk {
      <widget class="QLabel" name="label_time_text8">
       <property name="geometry">
        <rect>
-        <x>650</x>
-        <y>620</y>
-        <width>111</width>
-        <height>41</height>
+        <x>1430</x>
+        <y>250</y>
+        <width>131</width>
+        <height>31</height>
        </rect>
       </property>
       <property name="font">
        <font>
-        <pointsize>10</pointsize>
+        <pointsize>13</pointsize>
         <weight>50</weight>
         <bold>false</bold>
        </font>
@@ -10000,18 +10186,18 @@ QProgressBar::chunk {
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="label_time8">
+     <widget class="QLabel" name="label_remained_time8">
       <property name="geometry">
        <rect>
-        <x>660</x>
-        <y>640</y>
-        <width>151</width>
-        <height>61</height>
+        <x>1430</x>
+        <y>270</y>
+        <width>181</width>
+        <height>51</height>
        </rect>
       </property>
       <property name="font">
        <font>
-        <pointsize>15</pointsize>
+        <pointsize>20</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -10039,10 +10225,28 @@ QProgressBar::chunk {
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+       <pixmap>icon/background.jpeg</pixmap>
       </property>
       <property name="scaledContents">
        <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QGraphicsView" name="view_map8">
+      <property name="geometry">
+       <rect>
+        <x>60</x>
+        <y>180</y>
+        <width>1261</width>
+        <height>631</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QGraphicsView {
+    border: 2px solid #CCCCCC;
+    border-radius: 20px;
+    background-color: transparent;  /* 배경은 필요에 따라 투명 */
+    padding: 0px;                   /* 안쪽 여백 없음 = 꽉 채움 */
+}</string>
       </property>
      </widget>
      <zorder>label_background8</zorder>
@@ -10050,17 +10254,17 @@ QProgressBar::chunk {
      <zorder>btn_home8</zorder>
      <zorder>weight_bar8</zorder>
      <zorder>topbar8</zorder>
-     <zorder>label_live_map8</zorder>
      <zorder>btn_back8</zorder>
      <zorder>label_weight8</zorder>
      <zorder>btn_pause8</zorder>
      <zorder>btn_change_place8</zorder>
      <zorder>label_distance_text8</zorder>
      <zorder>label_distance_icon8</zorder>
-     <zorder>label_distance8</zorder>
+     <zorder>label_remained_distance8</zorder>
      <zorder>label_time_icon8</zorder>
      <zorder>label_time_text8</zorder>
-     <zorder>label_time8</zorder>
+     <zorder>label_remained_time8</zorder>
+     <zorder>view_map8</zorder>
     </widget>
     <widget class="QWidget" name="page_decision_after_arrived">
      <widget class="QPushButton" name="btn_go_next_goal9">
@@ -11090,7 +11294,7 @@ QProgressBar::chunk {
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+       <pixmap>icon/background.jpeg</pixmap>
       </property>
       <property name="scaledContents">
        <bool>true</bool>
@@ -12016,7 +12220,7 @@ QProgressBar::chunk {
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+       <pixmap>icon/background.jpeg</pixmap>
       </property>
       <property name="scaledContents">
        <bool>true</bool>
@@ -12887,7 +13091,7 @@ QProgressBar::chunk {
        <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
       </property>
       <property name="text">
-       <string>비밀번호를 입력해주세요 :)</string>
+       <string>돌아오셨나요? 비밀번호를 입력해주세요 :)</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -13359,7 +13563,7 @@ QProgressBar::chunk {
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+       <pixmap>icon/background.jpeg</pixmap>
       </property>
       <property name="scaledContents">
        <bool>true</bool>
@@ -14359,7 +14563,7 @@ QProgressBar::chunk {
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap>icon/hero-mkif-incheon-international-airport-expressway.jpeg</pixmap>
+       <pixmap>icon/background.jpeg</pixmap>
       </property>
       <property name="scaledContents">
        <bool>true</bool>
