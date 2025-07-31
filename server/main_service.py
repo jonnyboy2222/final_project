@@ -2,21 +2,11 @@ import socket
 import struct
 import threading
 import json
-import numpy as np
-import cv2
-import queue
 import time
 from datetime import datetime
 
 import multiprocessing
 from multiprocessing import Process, Queue, Manager, Value
-
-# import speech_recognition as sr
-import tempfile
-import os
-
-import platform
-import subprocess
 
 from db_connect import ARCSDatabaseHandler
 
@@ -43,16 +33,17 @@ admin_tcp_port = 12348
 
 
 
-admin_ip = '192.168.2.40'  # Admin PC IP
-admin_port = 23456         # Admin TCP 포트
+admin_ip = '192.168.0.18'      # Admin PC IP
+admin_port = 23456             # Admin TCP 포트
 
-user_ip = '192.168.2.30'  # User PC IP
-user_port = 23457         # User TCP 포트
+user_ip = '192.168.0.30'       # User PC IP
+user_port = 23457              # User TCP 포트
 
 main_udp_ip = '192.168.0.100'  # 메인 컨트롤러 IP
-main_udp_port = 9000           # 메인 컨트롤러 포트
+main_udp_port = 23458          # 메인 컨트롤러 포트
 
-llm_tcp_ip = "192.168.2.5" # Chat Service IP
+llm_tcp_ip = "192.168.0.33"    # Chat Service IP
+llm_port = 23459               # Chat Service TCP 포트
 
 
     
@@ -181,7 +172,7 @@ def send_pos_to_llm(current_pos_bytes):
         packet = header + length_bytes + current_pos_bytes
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.connect((llm_tcp_ip, llm_tcp_port))
+            sock.connect((llm_tcp_ip, llm_port))
             sock.sendall(packet)
 
     except Exception as e:
