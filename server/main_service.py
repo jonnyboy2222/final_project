@@ -476,7 +476,7 @@ def admin_tcp_receiver(conn, addr, admin_ip, admin_port, admin_pos_queue, user_n
 def data_to_admin_pc(admin_ip, admin_port, command, json_data, admin_pos_queue, user_name_queue, robot_id_queue):
     try:
         arcs_db = ARCSDatabaseHandler()
-        
+
         admin_conn = None
         while admin_conn is None and running.value:
             try:
@@ -608,10 +608,7 @@ def data_to_user_pc(user_ip, user_port, running, main_ctrl_data_queue, llm_data_
             oo_command = "OO"
             xx_command = "XX"
 
-            if main_ctrl_data_queue.empty():
-                continue
-
-            else: # not empty
+            if not main_ctrl_data_queue.empty():
                 oo_json_bytes = main_ctrl_data_queue.get()
 
                 # Header + Length(4바이트) + Payload
@@ -622,10 +619,7 @@ def data_to_user_pc(user_ip, user_port, running, main_ctrl_data_queue, llm_data_
 
                 user_conn.sendall(oo_packet)
 
-            if llm_data_queue.empty():
-                continue
-
-            else: # not empty
+            if not llm_data_queue.empty():
                 xx_json_bytes = llm_data_queue.get()
 
                 # Header + Length(4바이트) + Payload
@@ -636,10 +630,7 @@ def data_to_user_pc(user_ip, user_port, running, main_ctrl_data_queue, llm_data_
 
                 user_conn.sendall(xx_packet)
 
-            if user_data_queue.empty():
-                continue
-
-            else: # not empty
+            if not user_data_queue.empty():
                 command = "AR"
                 json_bytes = user_data_queue.get()
 
@@ -650,6 +641,20 @@ def data_to_user_pc(user_ip, user_port, running, main_ctrl_data_queue, llm_data_
                 packet = header + length_bytes + command_bytes + json_bytes
 
                 user_conn.sendall(packet)
+
+            else:
+                dummy_com = "hi"
+                dummy_json = {
+                    "des_coor": (123, 123)
+                }
+                json_bytes = json.dumps(dummy_json).encode('utf-8')
+                length_bytes = struct.pack('>I', len(json_bytes))
+                command_bytes = struct.pack('>2s', dummy_com.encode('ascii'))
+
+                packet = header + length_bytes + command_bytes + json_bytes
+
+                user_conn.sendall(packet)
+                time.sleep(1)
 
             
         except Exception as e:
