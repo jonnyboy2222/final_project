@@ -50,9 +50,10 @@ user_ip = '192.168.2.30'  # User PC IP
 user_port = 23457         # User TCP 포트
 
 main_udp_ip = '192.168.0.100'  # 메인 컨트롤러 IP
-main_udp_port = 9000           # 메인 컨트롤러 포트
+main_udp_port = 23458           # 메인 컨트롤러 포트
 
 llm_tcp_ip = "192.168.2.5" # Chat Service IP
+llm_port = 23459
 
 admin_conn = None
 user_conn = None
@@ -117,7 +118,7 @@ def vision_tcp_receiver(conn, addr, vision_data_queue):
     finally:
         conn.close()
 
-def start_llm_tcp_server(tcp_ip, llm_tcp_port, running, llm_data_queue, pos_queue):
+def start_llm_tcp_server(tcp_ip, llm_tcp_port, llm_tcp_ip, llm_port, running, llm_data_queue, pos_queue):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
         server.bind((tcp_ip, llm_tcp_port))
         server.listen()
@@ -125,10 +126,10 @@ def start_llm_tcp_server(tcp_ip, llm_tcp_port, running, llm_data_queue, pos_queu
 
         while running.value:
             conn, addr = server.accept()
-            threading.Thread(target=llm_tcp_receiver, args=(conn, addr, llm_data_queue, pos_queue), daemon=True).start()
+            threading.Thread(target=llm_tcp_receiver, args=(conn, addr, llm_tcp_ip, llm_port, llm_data_queue, pos_queue), daemon=True).start()
 
 
-def llm_tcp_receiver(conn, addr, llm_data_queue, pos_queue):
+def llm_tcp_receiver(conn, addr, llm_tcp_ip, llm_port, llm_data_queue, pos_queue):
     print(f"[LLM] Connected from {addr}")
     try:
         # 1) Read exactly 1 byte for the header
@@ -171,14 +172,14 @@ def llm_tcp_receiver(conn, addr, llm_data_queue, pos_queue):
         print(f"[LLM] Current Position: {current_pos}")
 
         current_pos_bytes = json.dumps(current_pos).encode('utf-8')
-        send_pos_to_llm(current_pos_bytes)
+        send_pos_to_llm(llm_tcp_ip, llm_port, current_pos_bytes)
 
     except Exception as e:
         print(f"[LLM ERROR] {e}")
     finally:
         conn.close()
 
-def send_pos_to_llm(current_pos_bytes):
+def send_pos_to_llm(llm_tcp_ip, llm_port, current_pos_bytes):
     try:
         header = b'\x00'
         length_bytes = struct.pack('>I', len(current_pos_bytes))
@@ -186,14 +187,14 @@ def send_pos_to_llm(current_pos_bytes):
         packet = header + length_bytes + current_pos_bytes
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.connect((llm_tcp_ip, llm_tcp_port))
+            sock.connect((llm_tcp_ip, llm_port))
             sock.sendall(packet)
 
     except Exception as e:
         print(f"[LLM TCP SEND ERROR] {e}")
 
 
-def start_user_tcp_server(tcp_ip, user_tcp_port, running, vision_data_queue, user_name_queue, robot_id_queue):
+def start_user_tcp_server(tcp_ip, user_tcp_port, main_udp_ip, main_udp_port, running, vision_data_queue, user_name_queue, robot_id_queue):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
         server.bind((tcp_ip, user_tcp_port))
         server.listen()
@@ -201,9 +202,9 @@ def start_user_tcp_server(tcp_ip, user_tcp_port, running, vision_data_queue, use
 
         while running.value:
             conn, addr = server.accept()
-            threading.Thread(target=user_tcp_receiver, args=(conn, addr, vision_data_queue, user_name_queue, robot_id_queue), daemon=True).start()
+            threading.Thread(target=user_tcp_receiver, args=(conn, addr, main_udp_ip, main_udp_port, vision_data_queue, user_name_queue, robot_id_queue), daemon=True).start()
 
-def user_tcp_receiver(conn, addr, vision_data_queue, user_name_queue, robot_id_queue):
+def user_tcp_receiver(conn, addr, main_udp_ip, main_udp_port, vision_data_queue, user_name_queue, robot_id_queue):
     print(f"[USER] Connected from {addr}")
     try:
         arcs_db = ARCSDatabaseHandler()
@@ -253,7 +254,7 @@ def user_tcp_receiver(conn, addr, vision_data_queue, user_name_queue, robot_id_q
         des_coor_list = payload.get("des_coor")
         vision_data = vision_data_queue.get() if not vision_data_queue.empty() else None
 
-        send_to_main_controller_udp(command, des_coor_list, vision_data)
+        send_to_main_controller_udp(main_udp_ip, main_udp_port, command, des_coor_list, vision_data)
 
         user_info = payload.get("user_info")
         robot_id = user_info["robot_id"]
@@ -293,7 +294,7 @@ def user_tcp_receiver(conn, addr, vision_data_queue, user_name_queue, robot_id_q
 # following, leading, pausing, waiting
     
 
-def send_to_main_controller_udp(command, des_coor_list, vision_data):
+def send_to_main_controller_udp(main_udp_ip, main_udp_port, command, des_coor_list, vision_data):
     try:
         # command를 ASCII 2바이트로 패킹
         command_bytes = struct.pack('>2s', command.encode('ascii'))
@@ -414,7 +415,7 @@ def main_controller_udp_receiver(conn, addr, main_ctrl_data_queue, pos_queue, ad
     finally:
         conn.close()
 
-def start_admin_tcp_server(tcp_ip, admin_tcp_port, running, admin_pos_queue, user_name_queue, robot_id_queue):
+def start_admin_tcp_server(tcp_ip, admin_tcp_port, admin_conn, admin_ip, admin_port, running, admin_pos_queue, user_name_queue, robot_id_queue):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
         server.bind((tcp_ip, admin_tcp_port))
         server.listen()
@@ -669,9 +670,9 @@ if __name__ == "__main__":
     robot_id_queue = manager.Queue()
 
     p1 = multiprocessing.Process(target=start_vision_tcp_server, args=(tcp_ip, vision_tcp_port, running, vision_data_queue))
-    p2 = multiprocessing.Process(target=start_llm_tcp_server, args=(tcp_ip, llm_tcp_port, running, llm_data_queue, pos_queue))
-    p3 = multiprocessing.Process(target=start_user_tcp_server, args=(tcp_ip, user_tcp_port, running, vision_data_queue, user_name_queue, robot_id_queue))
-    p4 = multiprocessing.Process(target=start_admin_tcp_server, args=(tcp_ip, admin_tcp_port, running, admin_pos_queue, user_name_queue, robot_id_queue))
+    p2 = multiprocessing.Process(target=start_llm_tcp_server, args=(tcp_ip, llm_tcp_port, llm_tcp_ip, llm_port, running, llm_data_queue, pos_queue))
+    p3 = multiprocessing.Process(target=start_user_tcp_server, args=(tcp_ip, user_tcp_port, main_udp_ip, main_udp_port, running, vision_data_queue, user_name_queue, robot_id_queue))
+    p4 = multiprocessing.Process(target=start_admin_tcp_server, args=(tcp_ip, admin_tcp_port, admin_conn, admin_ip, admin_port, running, admin_pos_queue, user_name_queue, robot_id_queue))
     p5 = multiprocessing.Process(target=start_main_controller_udp_server, args=(udp_ip, udp_port, running, main_ctrl_data_queue, pos_queue, admin_pos_queue, user_data_queue))
     p6 = multiprocessing.Process(target=data_to_user_pc, args=(user_conn, user_ip, user_port, running, main_ctrl_data_queue, llm_data_queue, user_data_queue))
 
