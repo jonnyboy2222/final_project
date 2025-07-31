@@ -2,21 +2,11 @@ import socket
 import struct
 import threading
 import json
-import numpy as np
-import cv2
-import queue
 import time
 from datetime import datetime
 
 import multiprocessing
 from multiprocessing import Process, Queue, Manager, Value
-
-# import speech_recognition as sr
-import tempfile
-import os
-
-import platform
-import subprocess
 
 from db_connect import ARCSDatabaseHandler
 
@@ -43,16 +33,17 @@ admin_tcp_port = 12348
 
 
 
-admin_ip = '192.168.2.40'  # Admin PC IP
-admin_port = 23456         # Admin TCP 포트
+admin_ip = '192.168.0.18'      # Admin PC IP
+admin_port = 23456             # Admin TCP 포트
 
-user_ip = '192.168.2.30'  # User PC IP
-user_port = 23457         # User TCP 포트
+user_ip = '192.168.0.30'       # User PC IP
+user_port = 23457              # User TCP 포트
 
 main_udp_ip = '192.168.0.100'  # 메인 컨트롤러 IP
-main_udp_port = 9000           # 메인 컨트롤러 포트
+main_udp_port = 23458          # 메인 컨트롤러 포트
 
-llm_tcp_ip = "192.168.2.5" # Chat Service IP
+llm_tcp_ip = "192.168.0.33"    # Chat Service IP
+llm_port = 23459               # Chat Service TCP 포트
 
 
     
@@ -175,13 +166,21 @@ def llm_tcp_receiver(conn, addr, llm_data_queue, pos_queue):
 
 def send_pos_to_llm(current_pos_bytes):
     try:
-        header = b'\x00'
-        length_bytes = struct.pack('>I', len(current_pos_bytes))
-
-        packet = header + length_bytes + current_pos_bytes
-
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.connect((llm_tcp_ip, llm_tcp_port))
+            for _ in range(5):
+                try:
+                    sock.connect((llm_tcp_ip, llm_tcp_port))
+                    break
+                except (ConnectionRefusedError, OSError) as e:
+                    print(f"[LLM TCP] Retry connection... {e}")
+                    time.sleep(2)
+            else:
+                print("[LLM TCP] Failed to connect to LLM after retries")
+                return
+
+            header = b'\x00'
+            length_bytes = struct.pack('>I', len(current_pos_bytes))
+            packet = header + length_bytes + current_pos_bytes
             sock.sendall(packet)
 
     except Exception as e:
@@ -477,9 +476,18 @@ def admin_tcp_receiver(conn, addr, admin_ip, admin_port, admin_pos_queue, user_n
 def data_to_admin_pc(admin_ip, admin_port, command, json_data, admin_pos_queue, user_name_queue, robot_id_queue):
     try:
         arcs_db = ARCSDatabaseHandler()
-        admin_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        admin_conn.connect((admin_ip, admin_port))
-        print("[Admin] Connected to Admin PC")
+
+        admin_conn = None
+        while admin_conn is None and running.value:
+            try:
+                admin_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                admin_conn.connect((admin_ip, admin_port))
+                print("[Admin] Connected to Admin PC")
+            except (ConnectionRefusedError, OSError) as e:
+                print(f"[Admin] Waiting for Admin PC... {e}")
+                admin_conn = None
+                time.sleep(2)
+
 
         header = b'\x00'
         login_success = b'\x01'
@@ -582,9 +590,17 @@ def data_to_admin_pc(admin_ip, admin_port, command, json_data, admin_pos_queue, 
 # User PC로 데이터 전송
 def data_to_user_pc(user_ip, user_port, running, main_ctrl_data_queue, llm_data_queue, user_data_queue):
 
-    user_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    user_conn.connect((user_ip, user_port))
-    print("[User] Connected to User PC")
+    user_conn = None
+
+    while user_conn is None and running.value:
+        try:
+            user_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            user_conn.connect((user_ip, user_port))
+            print("[User] Connected to User PC")
+        except (ConnectionRefusedError, OSError) as e:
+            print(f"[User] Waiting for User PC... {e}")
+            user_conn = None
+            time.sleep(2)  # 2초 후 재시도
     
     while running.value:
         try:
@@ -592,10 +608,7 @@ def data_to_user_pc(user_ip, user_port, running, main_ctrl_data_queue, llm_data_
             oo_command = "OO"
             xx_command = "XX"
 
-            if main_ctrl_data_queue.empty():
-                continue
-
-            else: # not empty
+            if not main_ctrl_data_queue.empty():
                 oo_json_bytes = main_ctrl_data_queue.get()
 
                 # Header + Length(4바이트) + Payload
@@ -606,10 +619,7 @@ def data_to_user_pc(user_ip, user_port, running, main_ctrl_data_queue, llm_data_
 
                 user_conn.sendall(oo_packet)
 
-            if llm_data_queue.empty():
-                continue
-
-            else: # not empty
+            if not llm_data_queue.empty():
                 xx_json_bytes = llm_data_queue.get()
 
                 # Header + Length(4바이트) + Payload
@@ -620,10 +630,7 @@ def data_to_user_pc(user_ip, user_port, running, main_ctrl_data_queue, llm_data_
 
                 user_conn.sendall(xx_packet)
 
-            if user_data_queue.empty():
-                continue
-
-            else: # not empty
+            if not user_data_queue.empty():
                 command = "AR"
                 json_bytes = user_data_queue.get()
 
@@ -634,6 +641,20 @@ def data_to_user_pc(user_ip, user_port, running, main_ctrl_data_queue, llm_data_
                 packet = header + length_bytes + command_bytes + json_bytes
 
                 user_conn.sendall(packet)
+
+            else:
+                dummy_com = "hi"
+                dummy_json = {
+                    "des_coor": (123, 123)
+                }
+                json_bytes = json.dumps(dummy_json).encode('utf-8')
+                length_bytes = struct.pack('>I', len(json_bytes))
+                command_bytes = struct.pack('>2s', dummy_com.encode('ascii'))
+
+                packet = header + length_bytes + command_bytes + json_bytes
+
+                user_conn.sendall(packet)
+                time.sleep(1)
 
             
         except Exception as e:
