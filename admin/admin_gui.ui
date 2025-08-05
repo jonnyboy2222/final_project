@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1000</width>
+    <height>700</height>
+   </rect>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="mainVerticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="loginLayout">
+      <item>
+       <widget class="QLabel" name="loginIdLabel">
+        <property name="text">
+         <string>ID:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="loginIdEdit"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="loginPwLabel">
+        <property name="text">
+         <string>Password:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="loginPwEdit">
+        <property name="echoMode">
+         <enum>QLineEdit::Password</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="loginButton">
+        <property name="text">
+         <string>Login</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="robotManagementTab">
+       <attribute name="title">
+        <string>로봇 관리용</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="robotTabLayout">
+        <item>
+         <layout class="QHBoxLayout" name="mapStateLayout">
+          <item>
+           <widget class="QGraphicsView" name="mapView">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="robotStateLabel">
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>400</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Robot State</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QListWidget" name="robotListWidget"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="dbQueryTab">
+       <attribute name="title">
+        <string>DB 조회 tab</string>
+       </attribute>
+       <layout class="QFormLayout" name="formLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="robotIdLabel">
+          <property name="text">
+           <string>Robot ID:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="robotIdEdit"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="userNameLabel">
+          <property name="text">
+           <string>User Name:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="userNameEdit"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="ticketLabel">
+          <property name="text">
+           <string>Ticket #:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="ticketEdit"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="timestampLabel">
+          <property name="text">
+           <string>Time Stamp:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <layout class="QHBoxLayout">
+          <item>
+           <widget class="QComboBox" name="hourCombo"/>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="minuteSpin"/>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="secondSpin"/>
+          </item>
+         </layout>
+        </item>
+        <item row="4" column="0" colspan="2">
+         <widget class="QPushButton" name="queryButton">
+          <property name="text">
+           <string>조회</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0" colspan="2">
+         <widget class="QTextEdit" name="queryResultText">
+          <property name="placeholderText">
+           <string>조회 내용</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

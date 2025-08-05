@@ -1,0 +1,35 @@
+3. page_check_info
+ btn_correct3 클릭했을 때 um_8을 전송 
+
+ 4.page_loading
+btn_deny_load4 또는 btn_end_loading4 눌렀을 때  self.selected_function == 'following_mode'라면  um_2 송신
+
+  5.page_following 
+btn_pause5 클릭 했을 때 is_paused_f가 False라면 um_4송신 후 is_paused=True로 변경
+is_paused가 True라면 um_2 송신
+
+6.page_select_place  
+btn_start6 클릭 시 um_1 송신
+
+7.page_check_goal
+self.edit = False 를 init 함수에 선언해두고,
+btn_start7 클릭했을 때 self.edit=False면 um_5송신, self.edit=True면 um_7 송신하고self.edit=False로 변경
+btn_change_place7 버튼 누르면 self.edit=True로 변경
+
+8.page_guiding
+btn_pause8눌렀을 때 self.is_paused_g == True일 때 um_5 송신 후 self.is_paused_g == False로 변경
+ self.is_paused_g == False일 때 um_4 송신
+btn_change_place8 버튼 눌렀을 때 um_4 송신 후  self.edit=True
+
+9.page_decision_after_arrived
+이 페이지로 들어오면 um_4랑 um_9 송신
+btn_go_next_goal9누르면 um_5송신
+btn_change_goal9누르면 self.edit=True
+
+10.page_waiting
+11.page_user_valid
+12.page_bye
+이 페이지 들어오고 4초 지나면 um_3송신 후에 page_main으로 이동
+
+13.page_charging
+배터리 상태에 따라 이 페이지 켜지든 말든 할텐데 현재 인터페이스에 배터리 잔량을 받는 것을 뺴놓고 만들었으니 일단 보류!
