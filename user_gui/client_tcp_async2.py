@@ -11,12 +11,11 @@ from gtts import gTTS
 import tempfile
 import os, threading, subprocess
 import platform
-# from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QLabel, QPushButton, QTableWidgetItem, QProgressBar,
     QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QGraphicsEllipseItem, QGraphicsLineItem
     )
-from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt, QPointF, QObject #QUrl
+from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt, QPointF, QObject #QEvent
 from PyQt5.uic import loadUi
 from PyQt5.QtGui import QImage, QPixmap, QPen, QBrush
 import queue
@@ -35,17 +34,15 @@ class TcpCommunicator(QObject):
         self.receive_ip = receive_ip
         self.receive_port = receive_port
 
-        self._running = True
+        self._running_tcp = True
 
 # =====================================================================================================
 #init 송신 스레드/큐 추가 
 # =====================================================================================================
         self.send_queue = queue.Queue()
         self.sender_socket = None
-        self.sender_thread = threading.Thread(target=self._send_loop, daemon=True)
-        self.sender_thread.start()
-
-        
+        self.sender_thread = threading.Thread(target=self._send_loop, daemon=True) #daemon=True :보조 작업용 스레드임을 표시
+        self.sender_thread.start() #sender_thread에서 self._send_loop 바로 실행되기 시작
 
 # =====================================================================================================
 #init 수신 관련
@@ -63,7 +60,7 @@ class TcpCommunicator(QObject):
             #연결 대기 상태로 진입 (클라이언트의 connect를 기다림)
             self.receiver.listen(1)
             #바인딩 성공 후 로그 출력
-            print(f"[TCP]수신서버소켓 생성완료: 수신 대기 중 → {receive_ip}:{receive_port}")
+            print(f"[TCP]수신서버소켓 생성완료 → {receive_ip}:{receive_port}")
         except Exception as e:
             print(f"[TCP] 수신서버소켓 설정 실패: {e}")
             self.receiver = None
@@ -78,18 +75,19 @@ class TcpCommunicator(QObject):
 # ========================================================================================
     #보낼 tcp를 큐에 담기
     def send_tcp_message_um(self, command, payload_to_send):
-        # 이제는 소켓을 직접 열지 않고, 큐에만 쌓는다!
+        #소켓을 직접 열지 않고, 큐에만 쌓는다!
         self.send_queue.put((command, payload_to_send))
 
     #송신 전용 스레드. 큐에 쌓인 메시지 → sender_socket으로 전송.
     def _send_loop(self):
-        while self._running:
+        while self._running_tcp:
             try:
                 # 송신 소켓 연결 (없으면 새로 연결)
                 if self.sender_socket is None:
+                    print(f"[송신] 송신 소켓이 없습니다. {self.send_ip}:{self.send_port} 에 연결을 시도합니다...")
                     self.sender_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     self.sender_socket.connect((self.send_ip, self.send_port))
-                    print("[송신] 소켓 연결 완료")
+                    print(f"[송신] {self.send_ip}:{self.send_port} 에 성공적으로 연결되었습니다.")
 
                  # 메시지가 있을 때까지 대기 (0.5초마다 체크)
                 try:
@@ -108,7 +106,7 @@ class TcpCommunicator(QObject):
                     length = struct.pack('>I',len(payload_json)) #json 길이
                     message = header + length + command_bytes + payload_json
 
-                else:
+                else: #payload_to_send가 없을때
                     length = struct.pack('>I', 0)
                     message = header + length + command_bytes
 
@@ -116,20 +114,22 @@ class TcpCommunicator(QObject):
                 print(f"[송신] {command} 전송 완료")
 
             except (ConnectionResetError, BrokenPipeError) as e:
-                print(f"[송신 소켓 에러] 재연결 시도: {e}")
+                print(f"[송신][ERROR] 송신 소켓 연결이 끊어졌습니다: {e!r}")
+                print("[송신] 1초 후에 재연결을 시도합니다...")
                 if self.sender_socket:
                     self.sender_socket.close()
                 self.sender_socket = None
                 time.sleep(1)
             except Exception as e:
-                print(f"[송신 루프 예외]: {e}")
+                print(f"[송신][EXCEPTION] 예상치 못한 오류가 발생했습니다: {e!r}")
+                print("[송신] 이 오류는 재연결을 시도하지 않고, 루프를 계속 진행합니다.")
    
 # =======================================================================================================
 # 수신
 # =======================================================================================================
-    #수신 열결 & 메시지 수신을 영원히 반복(running=True면) [자동재연결]
+    #수신 연결 & 메시지 수신을 영원히 반복(running=True면) [자동재연결]
     def _accept_and_receive_forever(self):
-        while self._running:
+        while self._running_tcp:
             try:
                 print("[TCP] 클라이언트 연결 대기 중...")
                 #클라이언트의 연결 수락 (block 상태로 기다리는 상태임)
@@ -137,7 +137,7 @@ class TcpCommunicator(QObject):
                 #연결 성공 시 연결된 클라이언트 주소 출력
                 print(f"[TCP] 수신 연결 성공! receiver_conn생성완료 : 연결된 클라이언트: {addr}")
 
-                while self._running and self.receiver_conn:
+                while self.receiver_conn:
                     print("수신 쓰레딩 러닝 중")
                     try:
                         #header 수신
@@ -145,7 +145,7 @@ class TcpCommunicator(QObject):
                         if not header:
                             raise ConnectionResetError("header 없음, 연결 종료")
                         if header == b'\x00':
-                            print(f"header received: {header}")
+                            pass
                         else:
                             print(f"{header} received: 헤더 이상하게 생겼는데?")
 
@@ -187,22 +187,23 @@ class TcpCommunicator(QObject):
                         print(f"[TCP 수신 오류 - 내부]: {e}")
                         if self.receiver_conn:
                             try:
+                                self.receiver_conn.shutdown(socket.SHUT_RDWR)
                                 self.receiver_conn.close()
                             except:
                                 pass
                             self.receiver_conn = None
                         break  # 바깥 while로 빠져나가 재연결 시도
             except Exception as e:
-                print(f"[TCP 수신 오류 - accept]: {e}")
-                time.sleep(1)
-            time.sleep(1)  # 재연결 대기
-
+                print(f"[TCP 수신 오류 - accept]: {e!r}")
+                time.sleep(1) #1초 대기
+            time.sleep(1) #매 루프 끝마다 항상 쉬어 가며 전체 루프 속도를 제한하는 용도
+           
 # ===============================================================================================
 # 닫아
 # ===============================================================================================
     def close(self):
         try:
-            self._running = False
+            self._running_tcp = False
 
              # 송신 소켓 종료
             if self.sender_socket:
@@ -214,18 +215,30 @@ class TcpCommunicator(QObject):
                     pass
 
             if self.receiver_conn:
-                self.receiver_conn.shutdown(socket.SHUT_RDWR)
-                self.receiver_conn.close()
-                print("[TCP 닫는중] receiver_conn(수신연결소켓) 닫힘")
+                try:
+                    self.receiver_conn.shutdown(socket.SHUT_RDWR)
+                    self.receiver_conn.close()
+                    self.receiver_conn = None
+                    print("[TCP 닫는중] receiver_conn(수신연결소켓) 닫힘")
+                except:
+                    print("[TCP 닫는중] receiver_conn(수신연결소켓) 안 닫힘")
 
             if self.receiver:
-                self.receiver.shutdown(socket.SHUT_RDWR)
-                self.receiver.close()
-                print("[TCP 닫는중]receiver(수신 서버 소켓) 닫힘")
+                try:
+                    self.receiver.shutdown(socket.SHUT_RDWR)
+                    self.receiver.close()
+                    self.receiver = None
+                    print("[TCP 닫는중]receiver(수신 서버 소켓) 닫힘")
+                except:
+                    print("[TCP 닫는중]receiver(수신 서버 소켓) 안 닫힘")
 
-            if hasattr(self, 'receiver_thread'):
-                self.receiver_thread.join(timeout=2.0)
-                print("[TCP닫는중] 수신 스레드 종료 완료")
+            if hasattr(self, 'accept_thread'):
+                try:
+                    self.accept_thread.join(timeout=2.0)
+                    print("[TCP닫는중] 수신 스레드 종료 완료")
+                except:
+                    print("[TCP닫는중] 수신 스레드 종료 미완료")
+
         except Exception as e:
             print(f"[TCP 소켓 닫기 오류]: {e}")
 
@@ -237,26 +250,25 @@ class CameraWorker(QObject):
     # 카메라 프레임을 QImage로 전달하기 위한 시그널
     frame_received = pyqtSignal(QImage)
     # QR 코드가 인식되면 문자열을 전달하기 위한 시그널
-    qr_detected  = pyqtSignal(str)
+    qr_detected = pyqtSignal(str)
 
     def __init__(self, index=0):
         super().__init__()  
-        self.index    = index                       
-        self._run    = False
-        self._thread = None                        
-        self.detector = cv2.QRCodeDetector()         # QR 코드 디텍터 초기화
+        self.index = index                       
+        self._run_qr_camera = False
+        self.qr_thread = None                        
+        self.detector = cv2.QRCodeDetector() # QR 코드 디텍터 초기화
 
     def start(self):
-        if self._run:
+        if self._run_qr_camera:
             return
-        self._run = True
-        self._thread = threading.Thread(target=self._loop, daemon = True)
-        self._thread.start()
+        self._run_qr_camera = True
+        self.qr_thread = threading.Thread(target=self._loop, daemon = True)
+        self.qr_thread.start()
 
     def _loop(self):
-        cap = cv2.VideoCapture(self.index)           
-        self.running = True                          
-        while self._run:                          
+        cap = cv2.VideoCapture(self.index)                                   
+        while self._run_qr_camera:                          
             ret, frame = cap.read()                  
             if not ret:                              
                 continue
@@ -265,7 +277,7 @@ class CameraWorker(QObject):
                                                        
             if data:                                 
                 self.qr_detected.emit(data)         # 인식된 str을 UI로 전송
-                self._run = False                 
+                self._run_qr_camera = False                 
 
             # --- 화면 표시용 이미지 변환 파트 ---
             rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -278,40 +290,10 @@ class CameraWorker(QObject):
         cap.release()                               
 
     def stop(self):
-        self._run = False
-        if self._thread is not None:
-            self._thread.join()
-            self._thread = None
-
-# =================================================================================================
-# 말 좀 하자
-# =================================================================================================
-# class TTSWorker(QThread):
-#     tts_finished = pyqtSignal(str)  # mp3 파일 경로
-
-#     def __init__(self, text, parent=None):
-#         super().__init__(parent)
-#         self.text = text
-
-#     def run(self):
-#         try:
-#             print(f"[TTS] 읽기: {self.text}")
-#             tts = gTTS(text=self.text, lang='ko')
-#             with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as fp:
-#                 tts.save(fp.name)
-#                 path = fp.name
-#             self.tts_finished.emit(path)
-#             # if platform.system() == "Windows":
-#             #     os.system(f'start /wait {path}')
-#             # elif platform.system() == "Darwin":
-#             #     os.system(f'afplay {path}')
-#             # else:
-#             #     os.system(f'mpg123 {path}')
-
-#             # os.remove(path)
-#         except Exception as e:
-#             print(f"[TTS ERROR] {e}")
-#             self.tts_finished.emit(None)
+        self._run_qr_camera = False
+        if self.qr_thread is not None:
+            self.qr_thread.join()
+            self.qr_thread = None
 
 # ========================================================================================================
 # 메인이다
@@ -322,44 +304,45 @@ class MainWindow(QMainWindow):
         loadUi("/home/dong/project_local/final_project/user_gui/client.ui", self)
          # TCP 통신 객체 생성
         self.tcp = TcpCommunicator()
-        self.tts_worker = None  # 현재 실행중인 TTSWorker 인스턴스
+
         #메인에서 handle함수 다루기 위해.
         self.tcp.received_OO.connect(self.handle_mu1)
         self.tcp.received_AR.connect(self.handle_mu2)
         self.tcp.received_XX.connect(self.handle_mu3)
+
+        self.tts_thread = None  # 현재 실행중인 TTSWorker 인스턴스
         self.tts_playing = False
         self.tts_process = None #현재 재생 중인 mpg123 프로세스
 
-        self.place_coords ={             # 목적지 좌표 설정(임의값) - 맵 기반 좌표,pose 집어넣어야 함.
-            'gate1': (5.57, 12.88, 0.0),
-            'gate2': (4.3, 8.6, 0.0),
-            'gate3': (4.27, 6.40, 0.0),
-            'toilet_w': (-0.2, 6.0, 0.0),
-            'toilet_e': (-0.2, 0.45, 0.0), 
-            'shop_S': (1.8, 0.0, 0.0),
-            'shop_L': (3.2, 0.0, 0.0),
-            'shop_H': (4.7, 0.0, 0.0),
-            'restaurant_K': (9.0, 9.0, 0.0),
-            'restaurant_C': (10.0, 10.0, 0.0),
-            'lounge': (11.0, 11.0, 0.0),
-            'convenience_store': (12.0, 12.0, 0.0),
-            'info_desk': (13.0, 13.0, 0.0),
-            'smoking_zone': (14.0, 14.0, 0.0),
-            'cafe': (15.0, 15.0, 0.0)
+        #목적지 맵핑
+        self.place_coords ={             
+            'gate1': (6.0, 11.5, 0.0),
+            'gate2': (3.0, 10.0, 0.0),
+            'gate3': (6.0, 5.0, 0.0),
+            'toilet_w': (0.0, 0.0, 0.0),
+            'toilet_e': (6.0, 8.5, 0.0), 
+            'shop_S': (1.0, 0.0, 0.0),
+            'shop_L': (2.5, 7.0, 0.0),
+            'shop_H': (4.0, 0.0, 0.0),
+            'restaurant_K': (3.0, 7.0, 0.0),
+            'restaurant_C': (5.5, 0.0, 0.0),
+            'convenience_store': (5.5, 13.0, 0.0),
+            'info_desk': (4.5, 8.5, 0.0),
+            'cafe': (4.5, 6.0, 0.0)
         }
-        self.path = []   #경로
-        self.position = None
+
         self.destinations = []  #a*에서 쓰일 목적지
         self.selected_keys = [] #page_selected_place에서 버튼 색 조절하려고 사용
         self.arrived_place = None #도착한 장소
+        self.edit = False   #목적지 수정
+
         #가이드 중 일시정지 사용 위해서 
-        self.is_paused = False
+        self.is_paused_g = False
         #팔로잉 중 일시정지 사용 위해서
         self.is_paused_f = False
-        #목적지 수정
-        self.edit = False
+        
         # camera
-        self.camera = CameraWorker(0)
+        self.camera = CameraWorker(0)  #카메라 쓰레드 생성
         self.scanned_data = []
         self.user_info = {}
         self.camera.frame_received.connect(self.on_camera_frame)
@@ -367,7 +350,7 @@ class MainWindow(QMainWindow):
 
         # 지도 관련 구성 초기화
         self.scene = QGraphicsScene()     #그래픽 항목(도형, 이미지, 텍스트 등)을 관리할 수 있는 장면(scene) 객체 생성
-
+        # self.view_map6.viewport().installEventFilter(self)
         # 맵 이미지 아이템 생성
         # 맵 이미지 로드
         pixmap = QPixmap("/home/dong/project_local/final_project/academy.png")
@@ -380,6 +363,8 @@ class MainWindow(QMainWindow):
         self.scene.addItem(self.arcs_item) #scene에다가 빨간 원 추가. 아직 시각화 안 해서 보이지는 않음
         # 경로 선 저장용
         self.path_items = []
+        self.path = []   #경로
+        self.position = None
         # 좌표 변환 비율 (1m → 50px)
         self.SCALE = 50.0
 
@@ -428,7 +413,7 @@ class MainWindow(QMainWindow):
         # 홈 버튼 누를 경우
         for btn in self.findChildren(QPushButton):
             if btn.objectName().startswith("btn_home"):
-                btn.clicked.connect(self.on_home_clicked)       
+                btn.clicked.connect(self.on_home_clicked)
 
     #상단바 날짜 및 시간 업데이트 함수
     def update_datetime(self):
@@ -442,12 +427,21 @@ class MainWindow(QMainWindow):
 
     #홈 버튼 누르면 하는 일
     def on_home_clicked(self):
+        self.reset_all()
         #메인으로
+        payload_to_send = {
+            "robot_id": 1,
+            "user_info": None,
+            "des_coor": None
+        }
+        self.tcp.send_tcp_message_um("PS", payload_to_send)
+        print("[TCP] PS 전송 완료")
         self.show_page('main')
 
     #초기화
     def reset_all(self):
         self.tts_playing = False
+        self.tts_process = None 
         #스캔 관련
         self.scanned_data = []
         self.user_info = {}
@@ -494,10 +488,9 @@ class MainWindow(QMainWindow):
     # TTS 실행 요청 (중복 실행 방지)
     def play_tts_async(self, text):
         # 현재 TTS가 실행중이면 새로 실행하지 않음
-        if  not text or self.tts_playing:
-             #(self.tts_worker is not None and self.tts_worker.isRunning()) or
-             print("[TTS] 이미 실행중, 새 요청 무시")
-             return
+        if not text or self.tts_playing:
+            print("[TTS] 이미 실행중, 새 요청 무시")
+            return
         
         # 중복 방지를 위해 "스레드 생성 전"에 True 설정
         self.tts_playing = True
@@ -526,7 +519,8 @@ class MainWindow(QMainWindow):
                 self.tts_playing = False
                 self.tts_process = None
 
-        threading.Thread(target = tts_task, args=(text,), daemon=True).start()
+        self.tts_thread =threading.Thread(target = tts_task, args=(text,), daemon=True)
+        self.tts_thread.start()
 
     def _stop_tts(self):
         #재생 중인 TTS(mp3) 프로세스를 강제 종료하고 상태 초기화
@@ -537,16 +531,6 @@ class MainWindow(QMainWindow):
                 pass
             self.tts_process = None
         self.tts_playing = False
-        
-        # if getattr(self, 'player', None) is not None:
-        #     self.player.stop()
-        #     self.player.deleteLater()
-        # self.player = QMediaPlayer()
-        # self.player.setMedia(QMediaContent(QUrl.fromLocalFile(mp3_path)))
-        # self.player.setVolume(100)
-        # self.player.play()
-        # print("QMediaPlayer error:", self.player.error(), self.player.errorString())
-        # print("[TTS] mp3 재생 시작:", mp3_path)
 
 # =============================================================================
     #tcp 수신 했을 때 처리
@@ -556,10 +540,23 @@ class MainWindow(QMainWindow):
         # 목적지 도착 알림
         robot_id = payload_dict.get("robot_id")
         print(f"[TCP 수신]: {robot_id}: 목적지 도착 알림 (AR)")
-        self.show_page('decision')
+        x1, y1 = self.position #현재위치
+        x0, y0 = (3.0, 13.0) #충전소 좌표
+        distance =  ((x1 - x0)**2 + (y1 - y0)**2)**0.5 #현재위치와 충전소 사이 거리
+        if distance > 0.25:
+            self.show_page('decision')
+        else: 
+            self.show_page('charging')
 
     #tcp로 받은 것이 mu3 일때
     def handle_mu3(self, payload_dict):
+        payload_to_send = {
+            "robot_id": 1,
+            "user_info": None,
+            "des_coor": None
+        }
+        self.tcp.send_tcp_message_um("PS", payload_to_send)
+
         if self.selected_function == 'leading_mode':
             llm_place_list = payload_dict.get("des_name")
             llm_place_tuple = tuple(llm_place_list)
@@ -568,10 +565,18 @@ class MainWindow(QMainWindow):
             existing_coords = [(x, y) for (x, y, _) in self.destinations]
             if llm_place_tuple not in existing_coords:
                 self.destinations.insert(0, llm_destination)
-                self.selected_keys.insert(0, llm_destination)
+
+                llm_place_key = next((k for k, v in self.place_coords.items() if tuple(v) == llm_destination),None)
+                if llm_place_key is not None:
+                    self.selected_keys.insert(0, llm_place_key)
+                else:
+                    # (옵션) 만약 매핑이 없으면 예외 처리하거나 로그 남기기
+                    print(f"[WARN] no key found for coords {llm_place_tuple}")
                 print(f"목적지 추가됨: {llm_destination}")
+                
             else:
                 print(f"이미 존재하는 목적지, 추가 안함: {llm_destination}")
+
             print(f"가야 할 목적지: {self.destinations}")
             payload_to_send ={
             "robot_id": 1,
@@ -642,7 +647,7 @@ class MainWindow(QMainWindow):
     def _update_distance_text(self, state):
         print("_update_distance_text 함수 진입")
         if hasattr(self, 'label_following_text5'): #해당 페이지에 label_following_text5가 있으면
-            if state == 1: #정상
+            if state == 0: #정상
                 self.label_following_text5.setText("동행중이에요:)")
             else:  # state == 0인 경우
                 self.label_following_text5.setText("조금만 기다려주세요, 가고 있어요!")
@@ -708,9 +713,13 @@ class MainWindow(QMainWindow):
 
 #맵 시각화 관련 #맵좌표 기반 
     #실제 좌표 -> scene 좌표 변환 함수
-    def real_to_scene(self, x_m,y_m):
-        x = x_m * self.SCALE    #맵 용 x좌표
-        y = -y_m * self.SCALE   #맵 용 y좌표
+    def real_to_scene(self, x_m, y_m):
+        y_rot_ref, x_rot_ref = -5.500000000000071, 0.0 #실좌표 회전
+        px_ref, py_ref = 272.0, 460.0 #맵좌표
+        offset_x = px_ref - x_rot_ref * self.SCALE
+        offset_y = py_ref + y_rot_ref * self.SCALE
+        x = x_m * self.SCALE + offset_x     #맵 용 x좌표
+        y = -y_m * self.SCALE + offset_y   #맵 용 y좌표
         return x,y
 
     #로봇 현재 위치 업데이트
@@ -742,6 +751,19 @@ class MainWindow(QMainWindow):
         except Exception as e:
             print("[경로 그리기 오류]", e)
 
+    # def eventFilter(self, obj, event):
+    #         from PyQt5.QtCore import QEvent, Qt
+
+    #         # 오직 view_map6의 viewport 클릭만 처리
+    #         if obj is self.view_map6.viewport() \
+    #         and event.type() == QEvent.MouseButtonPress \
+    #         and event.button() == Qt.LeftButton:
+
+    #             scene_pt = self.view_map6.mapToScene(event.pos())
+    #             print(f"[map6 클릭] 씬 좌표: ({scene_pt.x():.1f}, {scene_pt.y():.1f})")
+
+    #         # 나머지 이벤트는 기본 처리로 넘기기
+    #         return super().eventFilter(obj, event)
 
 # ===========================================================================
     # 1) page_main (main)
@@ -760,6 +782,13 @@ class MainWindow(QMainWindow):
 
     #following 또는 leading 중에 뭐 눌렀는 지 저장
     def _select_and_scan(self, mode):
+        payload_to_send = {
+            "robot_id": 1,
+            "user_info": None,
+            "des_coor": None
+        }
+        self.tcp.send_tcp_message_um("PS", payload_to_send)
+        print("[TCP] PS 전송 완료")
         self.selected_function = mode
         self.show_page('scan')
 
@@ -780,7 +809,7 @@ class MainWindow(QMainWindow):
 # ===========================================================================
     #버튼 연결
     def _connect_page_scan(self):
-        self.btn_back2.clicked.connect(lambda: self.show_page('main'))
+        self.btn_back2.setEnabled(False)
 
     #page_scan들어갔을 때 하는 일
     def _enter_scan(self):
@@ -1274,6 +1303,13 @@ class MainWindow(QMainWindow):
 
     def _enter_bye(self):
         print(f"page_bye: {self.selected_function}")
+        payload_to_send = {
+            "robot_id": 1,
+            "user_info": None,
+            "des_coor": None
+        }
+        self.tcp.send_tcp_message_um("PS", payload_to_send)
+        print("[TCP] PS 전송 완료")
         self.blink = False
         self.bye_timer = QTimer(self)
         self.bye_timer.timeout.connect(self._blink_bye)
@@ -1292,7 +1328,7 @@ class MainWindow(QMainWindow):
         payload_to_send = {
             "robot_id": 1,
             "user_info": None,
-            "des_coor": [(0.0,0.0,0.0)] #충전소 좌표 넣기
+            "des_coor": [(3.0,13.0,0.0)] #충전소 좌표 넣기
         }
         self.tcp.send_tcp_message_um("RT", payload_to_send)
         print("[TCP] RT 전송 완료")
@@ -1332,12 +1368,13 @@ class MainWindow(QMainWindow):
 # ==================================================================================
 #  닫아
 # ==================================================================================   
-    def closeEvent(self, event):
-        #TTSWorker 스레드 종료 대기
-        if hasattr(self, 'tts_worker') and self.tts_worker is not None:
-           if self.tts_worker.isRunning():
-            self.tts_worker.terminate()
-            self.tts_worker.wait(2000)
+    def closeEvent(self, event):   # Qt 프레임워크가 메인 윈도우가 닫힐 때 자동으로 실행하는 이벤트 핸들러
+        # — 남아 있을 수 있는 mpg123 프로세스만 명시적으로 종료 —
+        if self.tts_process:
+            try:
+                self.tts_process.terminate()
+            except:
+                pass
 
         #CameraThread 안전 종료
         if hasattr(self, 'camera'):
@@ -1350,7 +1387,9 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    win = MainWindow()
-    win.show()
-    sys.exit(app.exec_())
+    app = QApplication(sys.argv) #Qt 애플리케이션 객체 생성 : 내가 designer에서 만든 것 대로 윈도우에 배치해줌.
+    win = MainWindow()  #mainwindow 클래스의 __init__ 함수를 즉시 실행.
+    win.show() #메인 윈도우를 화면에 띄움
+    sys.exit(app.exec_()) #app.exec_()가 호출되는 순간, qt는 내부적으로 "이제부터 gui 관련 모든 이벤트를 처리할 준비가 됐다"하고 무한루프 돌기 시작
+                          #그 안에서 버튼클릭, 화면 그리기, 시그널/슬롯 호출, qtimer등 모든 qt 이벤트가 처리됨.
+                          #윈도우를 닫으면 exec_()가 빠져나오고, 그 값을 sys.exit()로 넘겨서 스크립트가 마무리됩니다. 

@@ -7850,24 +7850,45 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_info_desk">
       <property name="geometry">
        <rect>
-        <x>820</x>
-        <y>640</y>
-        <width>105</width>
+        <x>880</x>
+        <y>540</y>
+        <width>86</width>
         <height>31</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
       <property name="text">
        <string>안내 데스크</string>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
       </property>
      </widget>
      <widget class="QPushButton" name="btn_place_restaurant_K">
       <property name="geometry">
        <rect>
-        <x>520</x>
-        <y>220</y>
-        <width>105</width>
+        <x>750</x>
+        <y>390</y>
+        <width>86</width>
         <height>31</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
       </property>
       <property name="text">
        <string>한식당</string>
@@ -7876,11 +7897,20 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_gate1">
       <property name="geometry">
        <rect>
-        <x>110</x>
-        <y>220</y>
-        <width>105</width>
+        <x>960</x>
+        <y>676</y>
+        <width>86</width>
         <height>31</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
       </property>
       <property name="text">
        <string>게이트1</string>
@@ -7889,11 +7919,20 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_gate2">
       <property name="geometry">
        <rect>
-        <x>110</x>
-        <y>290</y>
-        <width>105</width>
+        <x>910</x>
+        <y>400</y>
+        <width>86</width>
         <height>31</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
       </property>
       <property name="text">
        <string>게이트2</string>
@@ -7935,15 +7974,30 @@ QProgressBar::chunk {
     padding: 0px;                   /* 안쪽 여백 없음 = 꽉 채움 */
 }</string>
       </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
      </widget>
      <widget class="QPushButton" name="btn_place_shop_S">
       <property name="geometry">
        <rect>
-        <x>370</x>
-        <y>220</y>
-        <width>105</width>
+        <x>383</x>
+        <y>360</y>
+        <width>86</width>
         <height>31</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
       </property>
       <property name="text">
        <string>신세계 면세점</string>
@@ -7952,11 +8006,21 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_shop_L">
       <property name="geometry">
        <rect>
-        <x>380</x>
-        <y>320</y>
-        <width>105</width>
+        <x>193</x>
+        <y>430</y>
+        <width>86</width>
         <height>31</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+        <underline>false</underline>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
       </property>
       <property name="text">
        <string>롯데 면세점</string>
@@ -7965,37 +8029,42 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_restaurant_C">
       <property name="geometry">
        <rect>
-        <x>520</x>
-        <y>320</y>
-        <width>105</width>
+        <x>193</x>
+        <y>630</y>
+        <width>86</width>
         <height>31</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
       </property>
       <property name="text">
        <string>중식당</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="btn_place_lounge">
-      <property name="geometry">
-       <rect>
-        <x>520</x>
-        <y>630</y>
-        <width>105</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>라운지</string>
-      </property>
-     </widget>
      <widget class="QPushButton" name="btn_place_shop_H">
       <property name="geometry">
        <rect>
-        <x>270</x>
-        <y>390</y>
-        <width>105</width>
+        <x>383</x>
+        <y>530</y>
+        <width>86</width>
         <height>31</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
       </property>
       <property name="text">
        <string>현대 면세점</string>
@@ -8004,11 +8073,20 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_gate3">
       <property name="geometry">
        <rect>
-        <x>120</x>
-        <y>390</y>
-        <width>105</width>
+        <x>580</x>
+        <y>690</y>
+        <width>86</width>
         <height>31</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
       </property>
       <property name="text">
        <string>게이트3</string>
@@ -8017,11 +8095,20 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_toilet_e">
       <property name="geometry">
        <rect>
-        <x>240</x>
-        <y>320</y>
-        <width>105</width>
+        <x>770</x>
+        <y>690</y>
+        <width>86</width>
         <height>31</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
       </property>
       <property name="text">
        <string>화장실 동편</string>
@@ -8030,11 +8117,20 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_convenience_store">
       <property name="geometry">
        <rect>
-        <x>660</x>
-        <y>640</y>
-        <width>105</width>
+        <x>1060</x>
+        <y>540</y>
+        <width>86</width>
         <height>31</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
       </property>
       <property name="text">
        <string>편의점</string>
@@ -8043,37 +8139,42 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_cafe">
       <property name="geometry">
        <rect>
-        <x>720</x>
-        <y>550</y>
-        <width>105</width>
+        <x>710</x>
+        <y>540</y>
+        <width>86</width>
         <height>31</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
       </property>
       <property name="text">
        <string>카페</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="btn_place_smoking_zone">
-      <property name="geometry">
-       <rect>
-        <x>910</x>
-        <y>530</y>
-        <width>105</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>흡연실</string>
-      </property>
-     </widget>
      <widget class="QPushButton" name="btn_place_toilet_w">
       <property name="geometry">
        <rect>
-        <x>240</x>
-        <y>220</y>
-        <width>105</width>
+        <x>193</x>
+        <y>250</y>
+        <width>86</width>
         <height>31</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
       </property>
       <property name="text">
        <string>화장실 서편</string>
@@ -8087,22 +8188,20 @@ QProgressBar::chunk {
      <zorder>label_select_place_text6</zorder>
      <zorder>btn_back6</zorder>
      <zorder>btn_home6</zorder>
-     <zorder>btn_start6</zorder>
-     <zorder>btn_place_info_desk</zorder>
-     <zorder>btn_place_restaurant_K</zorder>
+     <zorder>btn_place_cafe</zorder>
+     <zorder>btn_place_convenience_store</zorder>
      <zorder>btn_place_gate1</zorder>
      <zorder>btn_place_gate2</zorder>
-     <zorder>btn_place_shop_S</zorder>
-     <zorder>btn_place_shop_L</zorder>
-     <zorder>btn_place_restaurant_C</zorder>
-     <zorder>btn_place_lounge</zorder>
-     <zorder>btn_place_shop_H</zorder>
      <zorder>btn_place_gate3</zorder>
+     <zorder>btn_place_info_desk</zorder>
+     <zorder>btn_place_restaurant_C</zorder>
+     <zorder>btn_place_restaurant_K</zorder>
+     <zorder>btn_place_shop_H</zorder>
+     <zorder>btn_place_shop_L</zorder>
+     <zorder>btn_place_shop_S</zorder>
      <zorder>btn_place_toilet_e</zorder>
-     <zorder>btn_place_convenience_store</zorder>
-     <zorder>btn_place_cafe</zorder>
-     <zorder>btn_place_smoking_zone</zorder>
      <zorder>btn_place_toilet_w</zorder>
+     <zorder>btn_start6</zorder>
     </widget>
     <widget class="QWidget" name="page_check_goal">
      <widget class="QPushButton" name="btn_back7">
@@ -9110,6 +9209,338 @@ QProgressBar::chunk {
     padding: 0px;                   /* 안쪽 여백 없음 = 꽉 채움 */
 }</string>
       </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_toilet_w_2">
+      <property name="geometry">
+       <rect>
+        <x>193</x>
+        <y>250</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>화장실 서편</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_restaurant_K_2">
+      <property name="geometry">
+       <rect>
+        <x>750</x>
+        <y>390</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>한식당</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_cafe_2">
+      <property name="geometry">
+       <rect>
+        <x>710</x>
+        <y>540</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>카페</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_gate1_2">
+      <property name="geometry">
+       <rect>
+        <x>960</x>
+        <y>676</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>게이트1</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_gate2_2">
+      <property name="geometry">
+       <rect>
+        <x>910</x>
+        <y>400</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>게이트2</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_restaurant_C_2">
+      <property name="geometry">
+       <rect>
+        <x>193</x>
+        <y>630</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>중식당</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_shop_H_2">
+      <property name="geometry">
+       <rect>
+        <x>383</x>
+        <y>530</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>현대 면세점</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_shop_S_2">
+      <property name="geometry">
+       <rect>
+        <x>383</x>
+        <y>360</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>신세계 면세점</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_shop_L_2">
+      <property name="geometry">
+       <rect>
+        <x>193</x>
+        <y>430</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+        <underline>false</underline>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>롯데 면세점</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_toilet_e_2">
+      <property name="geometry">
+       <rect>
+        <x>770</x>
+        <y>690</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>화장실 동편</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_gate3_2">
+      <property name="geometry">
+       <rect>
+        <x>580</x>
+        <y>690</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>게이트3</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_convenience_store_2">
+      <property name="geometry">
+       <rect>
+        <x>1060</x>
+        <y>540</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>편의점</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_info_desk_2">
+      <property name="geometry">
+       <rect>
+        <x>880</x>
+        <y>540</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>안내 데스크</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
      </widget>
      <zorder>label_background7</zorder>
      <zorder>view_map7</zorder>
@@ -9123,6 +9554,19 @@ QProgressBar::chunk {
      <zorder>btn_change_place7</zorder>
      <zorder>label_time_text7</zorder>
      <zorder>label_predicted_time7</zorder>
+     <zorder>btn_place_toilet_w_2</zorder>
+     <zorder>btn_place_restaurant_K_2</zorder>
+     <zorder>btn_place_cafe_2</zorder>
+     <zorder>btn_place_gate1_2</zorder>
+     <zorder>btn_place_gate2_2</zorder>
+     <zorder>btn_place_restaurant_C_2</zorder>
+     <zorder>btn_place_shop_H_2</zorder>
+     <zorder>btn_place_shop_S_2</zorder>
+     <zorder>btn_place_shop_L_2</zorder>
+     <zorder>btn_place_toilet_e_2</zorder>
+     <zorder>btn_place_gate3_2</zorder>
+     <zorder>btn_place_convenience_store_2</zorder>
+     <zorder>btn_place_info_desk_2</zorder>
     </widget>
     <widget class="QWidget" name="page_guiding">
      <widget class="QLabel" name="label_check_place_text8">
@@ -10249,6 +10693,332 @@ QProgressBar::chunk {
 }</string>
       </property>
      </widget>
+     <widget class="QPushButton" name="btn_place_shop_S_3">
+      <property name="geometry">
+       <rect>
+        <x>383</x>
+        <y>360</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>신세계 면세점</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_convenience_store_3">
+      <property name="geometry">
+       <rect>
+        <x>1060</x>
+        <y>540</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>편의점</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_restaurant_K_3">
+      <property name="geometry">
+       <rect>
+        <x>750</x>
+        <y>390</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>한식당</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_info_desk_3">
+      <property name="geometry">
+       <rect>
+        <x>880</x>
+        <y>540</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>안내 데스크</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_gate2_3">
+      <property name="geometry">
+       <rect>
+        <x>890</x>
+        <y>400</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>게이트2</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_toilet_e_3">
+      <property name="geometry">
+       <rect>
+        <x>770</x>
+        <y>690</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>화장실 동편</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_gate3_3">
+      <property name="geometry">
+       <rect>
+        <x>580</x>
+        <y>690</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>게이트3</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_gate1_3">
+      <property name="geometry">
+       <rect>
+        <x>960</x>
+        <y>676</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>게이트1</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_shop_H_3">
+      <property name="geometry">
+       <rect>
+        <x>383</x>
+        <y>530</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>현대 면세점</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_shop_L_3">
+      <property name="geometry">
+       <rect>
+        <x>193</x>
+        <y>430</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+        <underline>false</underline>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>롯데 면세점</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_toilet_w_3">
+      <property name="geometry">
+       <rect>
+        <x>193</x>
+        <y>250</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>화장실 서편</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_cafe_3">
+      <property name="geometry">
+       <rect>
+        <x>690</x>
+        <y>540</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>카페</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_restaurant_C_3">
+      <property name="geometry">
+       <rect>
+        <x>193</x>
+        <y>630</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>중식당</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
      <zorder>label_background8</zorder>
      <zorder>label_check_place_text8</zorder>
      <zorder>btn_home8</zorder>
@@ -10265,6 +11035,19 @@ QProgressBar::chunk {
      <zorder>label_time_text8</zorder>
      <zorder>label_remained_time8</zorder>
      <zorder>view_map8</zorder>
+     <zorder>btn_place_shop_S_3</zorder>
+     <zorder>btn_place_convenience_store_3</zorder>
+     <zorder>btn_place_restaurant_K_3</zorder>
+     <zorder>btn_place_info_desk_3</zorder>
+     <zorder>btn_place_gate2_3</zorder>
+     <zorder>btn_place_toilet_e_3</zorder>
+     <zorder>btn_place_gate3_3</zorder>
+     <zorder>btn_place_gate1_3</zorder>
+     <zorder>btn_place_shop_H_3</zorder>
+     <zorder>btn_place_shop_L_3</zorder>
+     <zorder>btn_place_toilet_w_3</zorder>
+     <zorder>btn_place_cafe_3</zorder>
+     <zorder>btn_place_restaurant_C_3</zorder>
     </widget>
     <widget class="QWidget" name="page_decision_after_arrived">
      <widget class="QPushButton" name="btn_go_next_goal9">
