@@ -2,7 +2,7 @@ import sys
 import cv2
 import datetime
 import socket
-import json
+import json, yaml
 import re
 import struct
 import numpy as np
@@ -11,13 +11,14 @@ from gtts import gTTS
 import tempfile
 import os, threading, subprocess
 import platform
+from collections import deque
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QLabel, QPushButton, QTableWidgetItem, QProgressBar,
     QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QGraphicsEllipseItem, QGraphicsLineItem
     )
-from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt, QPointF, QObject #QEvent
+from PyQt5.QtCore import QTimer, QThread, pyqtSignal, Qt, QPointF, QObject, QMetaObject
 from PyQt5.uic import loadUi
-from PyQt5.QtGui import QImage, QPixmap, QPen, QBrush
+from PyQt5.QtGui import QImage, QPixmap, QPen, QBrush, QTransform
 import queue
 
 class TcpCommunicator(QObject):
@@ -98,7 +99,7 @@ class TcpCommunicator(QObject):
                 header = b'\x00' #1byte #0x00
                 command_bytes = command.encode("utf-8")  #2bytes #ex) command = "KG" → command_bytes = b'KG' 
                 #payload가 존재할 때만
-                if payload_to_send:
+                if payload_to_send is not None:
                     payload_json = json.dumps(payload_to_send).encode("utf-8") #*bytes 
                                                                             #payload_to_send = {"loadcell": 12345}
                                                                             #json.dumps(...) → '{"loadcell": 12345}'
@@ -109,9 +110,9 @@ class TcpCommunicator(QObject):
                 else: #payload_to_send가 없을때
                     length = struct.pack('>I', 0)
                     message = header + length + command_bytes
-
                 self.sender_socket.sendall(message)
-                print(f"[송신] {command} 전송 완료")
+
+
 
             except (ConnectionResetError, BrokenPipeError) as e:
                 print(f"[송신][ERROR] 송신 소켓 연결이 끊어졌습니다: {e!r}")
@@ -131,14 +132,14 @@ class TcpCommunicator(QObject):
     def _accept_and_receive_forever(self):
         while self._running_tcp:
             try:
-                print("[TCP] 클라이언트 연결 대기 중...")
+                # print("[TCP] 클라이언트 연결 대기 중...")
                 #클라이언트의 연결 수락 (block 상태로 기다리는 상태임)
                 self.receiver_conn, addr = self.receiver.accept() #self.receiver_conn : 실제 통신용 소켓, addr: 연결된 클라이언트의 주소 정보
                 #연결 성공 시 연결된 클라이언트 주소 출력
                 print(f"[TCP] 수신 연결 성공! receiver_conn생성완료 : 연결된 클라이언트: {addr}")
 
                 while self.receiver_conn:
-                    print("수신 쓰레딩 러닝 중")
+                    # print("수신 쓰레딩 러닝 중")
                     try:
                         #header 수신
                         header = self.receiver_conn.recv(1) #수신 버퍼의 가장 앞1바이트 읽어오기
@@ -158,7 +159,7 @@ class TcpCommunicator(QObject):
                         #command 수신
                         command_bytes = self.receiver_conn.recv(2) #ex)  b'AR'
                         command = command_bytes.decode("utf-8") #ex) 'AR'
-                        print("[TCP 수신 command까지 완료]: " + command)
+                        # print("[TCP 수신 command까지 완료]: " + command)
 
                         #json수신 및 해독
                         data = b''
@@ -168,7 +169,7 @@ class TcpCommunicator(QObject):
                                 raise ConnectionResetError("payload 없음, 연결 종료")
                             data += packet
                         payload_dict = json.loads(data.decode("utf-8")) #gui에서 직접 사용할 수 있는 수신데이터 형식
-                        print(f" [json 해독 완료]: {payload_dict}")
+                        # print(f" [json 해독 완료]: {payload_dict}")
 
                         #mu_2 수신
                         if command == "AR":
@@ -180,7 +181,7 @@ class TcpCommunicator(QObject):
                             self.received_XX.emit(payload_dict)
                         #mu_1 처리(일반 목적지 처리해야 할 때)
                         elif command == "OO":
-                            print("OO 들어감")
+                            # print("OO 들어감")
                             self.received_OO.emit(payload_dict)
                     
                     except Exception as e:
@@ -208,7 +209,9 @@ class TcpCommunicator(QObject):
              # 송신 소켓 종료
             if self.sender_socket:
                 try:
-                    self.sender_socket.shutdown(socket.SHUT_RDWR)
+                    #양방향 모두 종료 신호(FIN)를 상대에 보내고, 이후 모든 입출력이 차단
+                    self.sender_socket.shutdown(socket.SHUT_RDWR) #rd(수신),wr(송신) 하지 않겠다 선언(fin패킷 전송)
+                    #소켓 해제(fd해제)
                     self.sender_socket.close()
                     print("[TCP 닫는중] sender_socket(송신용) 닫힘")
                 except Exception:
@@ -234,7 +237,7 @@ class TcpCommunicator(QObject):
 
             if hasattr(self, 'accept_thread'):
                 try:
-                    self.accept_thread.join(timeout=2.0)
+                    self.accept_thread.join(timeout=2.0) #최대 2초까지 쓰레드 꺼지는 것을 기다림
                     print("[TCP닫는중] 수신 스레드 종료 완료")
                 except:
                     print("[TCP닫는중] 수신 스레드 종료 미완료")
@@ -263,10 +266,10 @@ class CameraWorker(QObject):
         if self._run_qr_camera:
             return
         self._run_qr_camera = True
-        self.qr_thread = threading.Thread(target=self._loop, daemon = True)
+        self.qr_thread = threading.Thread(target=self._camera_loop, daemon = True)
         self.qr_thread.start()
 
-    def _loop(self):
+    def _camera_loop(self):
         cap = cv2.VideoCapture(self.index)                                   
         while self._run_qr_camera:                          
             ret, frame = cap.read()                  
@@ -310,31 +313,40 @@ class MainWindow(QMainWindow):
         self.tcp.received_AR.connect(self.handle_mu2)
         self.tcp.received_XX.connect(self.handle_mu3)
 
-        self.tts_thread = None  # 현재 실행중인 TTSWorker 인스턴스
-        self.tts_playing = False
-        self.tts_process = None #현재 재생 중인 mpg123 프로세스
+        # ─── TTS 전용 워커 설정 ───
+        self._tts_queue = deque()             # 재생 대기열
+        self.tts_playing = False              # 재생 중 플래그
+        self.tts_process = None               # 현재 mpg123 프로세스
+        self._tts_worker_running = True       # 워커 루프 제어 플래그
+        self._tts_worker = threading.Thread(target=self._tts_worker_loop, daemon=True)
+        self._tts_worker.start()
 
         #목적지 맵핑
         self.place_coords ={             
-            'gate1': (6.0, 11.5, 0.0),
-            'gate2': (3.0, 10.0, 0.0),
-            'gate3': (6.0, 5.0, 0.0),
+            'gate1': (5.0, 13.1, 0.0),
+            'gate2': (2.5, 10.0, 0.0),
+            'gate3': (5.7, 5.7, 0.0),
             'toilet_w': (0.0, 0.0, 0.0),
-            'toilet_e': (6.0, 8.5, 0.0), 
+            'toilet_e': (5.7, 8.7, 0.0), 
             'shop_S': (1.0, 0.0, 0.0),
-            'shop_L': (2.5, 7.0, 0.0),
+            'shop_L': (2.5, 0.0, 0.0),
             'shop_H': (4.0, 0.0, 0.0),
-            'restaurant_K': (3.0, 7.0, 0.0),
+            'restaurant_K': (2.5, 7.3, 0.0),
             'restaurant_C': (5.5, 0.0, 0.0),
-            'convenience_store': (5.5, 13.0, 0.0),
-            'info_desk': (4.5, 8.5, 0.0),
-            'cafe': (4.5, 6.0, 0.0)
+            'convenience_store': (3.5, 11.4, 0.0),
+            'info_desk': (4.0, 8.7, 0.0),
+            'cafe': (4.0, 5.7, 0.0)
         }
 
         self.destinations = []  #a*에서 쓰일 목적지
         self.selected_keys = [] #page_selected_place에서 버튼 색 조절하려고 사용
         self.arrived_place = None #도착한 장소
         self.edit = False   #목적지 수정
+
+        # decision 페이지 용 타이머 (싱글샷)
+        self.decision_timer = QTimer(self)
+        self.decision_timer.setSingleShot(True)
+        self.decision_timer.timeout.connect(self._on_decision_timeout)
 
         #가이드 중 일시정지 사용 위해서 
         self.is_paused_g = False
@@ -348,25 +360,50 @@ class MainWindow(QMainWindow):
         self.camera.frame_received.connect(self.on_camera_frame)
         self.camera.qr_detected.connect(self._on_qr_detected)
 
-        # 지도 관련 구성 초기화
-        self.scene = QGraphicsScene()     #그래픽 항목(도형, 이미지, 텍스트 등)을 관리할 수 있는 장면(scene) 객체 생성
-        # self.view_map6.viewport().installEventFilter(self)
-        # 맵 이미지 아이템 생성
-        # 맵 이미지 로드
-        pixmap = QPixmap("/home/dong/project_local/final_project/academy.png")
-        pixmap = pixmap.scaled(1380, 612, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        self.map_item = QGraphicsPixmapItem(pixmap) #실제 맵으로 변경
-        self.scene.addItem(self.map_item) #scene에다가 맵 추가. 아직 시각화 안 해서 보이지는 않음
-        # 현재 위치 표시용 빨간 점
-        self.arcs_item = QGraphicsEllipseItem(-5, -5, 10, 10) #중심이 (0,0)인 지름 10px짜리 원 객체 생성
+        # # 지도 관련 구성 초기화
+        # self.scene = QGraphicsScene()     #그래픽 항목(도형, 이미지, 텍스트 등)을 관리할 수 있는 장면(scene) 객체 생성
+        # # self.view_map6.viewport().installEventFilter(self)
+        # # 맵 이미지 아이템 생성
+        # # 맵 이미지 로드
+        # pixmap = QPixmap("/home/dong/project_local/final_project/user_gui/academy.png")
+        # pixmap = pixmap.scaled(1380, 612, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        # self.map_item = QGraphicsPixmapItem(pixmap) #실제 맵으로 변경
+        # self.scene.addItem(self.map_item) #scene에다가 맵 추가. 아직 시각화 안 해서 보이지는 않음
+        # # 현재 위치 표시용 빨간 점
+        # self.arcs_item = QGraphicsEllipseItem(-5, -5, 10, 10) #중심이 (0,0)인 지름 10px짜리 원 객체 생성
+        # self.arcs_item.setBrush(QBrush(Qt.red)) #원 내부 색 빨강으로
+        # self.scene.addItem(self.arcs_item) #scene에다가 빨간 원 추가. 아직 시각화 안 해서 보이지는 않음
+        # 경로 선 저장용  
+        # self.path_items = []
+        # self.path = []   #경로
+        # self.position = None
+        # # 좌표 변환 비율 (1m → 50px)
+        # self.SCALE = 50.0
+
+
+        #=============동훈님 맵 그리기===
+        self.scene = QGraphicsScene()
+
+        with open("/home/dong/project_local/final_project/user_gui/final_map.yaml", 'r') as f:
+            meta = yaml.safe_load(f)
+            self.resolution = meta['resolution']  #1픽셀당 실제 몇 미터(또는 cm)에 해당하는지
+            self.origin = meta['origin'][:2]  # 지도 이미지의 (0,0) 픽셀이 실제 세계의 어떤 지점 (x, y)에 대응하는지를 정의하는 부분
+            # print(f"[MapMeta] resolution = {self.resolution}")
+            # print(f"[MapMeta] origin     = {self.origin}")
+        self.map_image = QPixmap("/home/dong/project_local/final_project/user_gui/final_map.pgm")
+        transform = QTransform().rotate(90)
+        self.map_image = self.map_image.transformed(transform)
+        self.map_item = QGraphicsPixmapItem(self.map_image)
+        self.scene.addItem(self.map_item)
+        self.arcs_item = QGraphicsEllipseItem(-3, -3, 6, 6) #중심이 (0,0)인 지름 10px짜리 원 객체 생성
         self.arcs_item.setBrush(QBrush(Qt.red)) #원 내부 색 빨강으로
         self.scene.addItem(self.arcs_item) #scene에다가 빨간 원 추가. 아직 시각화 안 해서 보이지는 않음
-        # 경로 선 저장용
+        #경로 선 저장용
         self.path_items = []
-        self.path = []   #경로
+        self.path = []   #경로 
         self.position = None
-        # 좌표 변환 비율 (1m → 50px)
-        self.SCALE = 50.0
+        #==============================================================================
+
 
         # page mapping
         self.pages = {
@@ -451,6 +488,9 @@ class MainWindow(QMainWindow):
         self.correct_password = ""
         self.pushed_valid_btn = ""
         #목적지 관련
+        for item in list(self.scene.items()):
+            if isinstance(item, QGraphicsLineItem):
+                self.scene.removeItem(item)
         self.path = []   #경로
         self.path_items = [] #경로에 나타내는 직선 저장용
         self.destinations = []  #목적지
@@ -464,6 +504,9 @@ class MainWindow(QMainWindow):
         self.is_paused_f = False
         #목적지 수정
         self.edit = False
+        #버튼 텍스트 변경
+        self.btn_pause5.setText("일시정지")
+        self.btn_pause8.setText("일시정지")
 
     # 페이지 전환 할 때 쓰이는 함수
     def show_page(self, page_key):
@@ -487,48 +530,56 @@ class MainWindow(QMainWindow):
 # ==============================================================================
     # TTS 실행 요청 (중복 실행 방지)
     def play_tts_async(self, text):
-        # 현재 TTS가 실행중이면 새로 실행하지 않음
-        if not text or self.tts_playing:
-            print("[TTS] 이미 실행중, 새 요청 무시")
+        if not text:
             return
         
-        # 중복 방지를 위해 "스레드 생성 전"에 True 설정
-        self.tts_playing = True
+        #큐에 마지막으로 들어간 메시지와 같으면 무시
+        if self._tts_queue and self._tts_queue[-1] == text:
+            print("[TTS] 중복 메시지, 큐에 추가하지 않음")
+            return
+        
+        #큐에 메세지 추가
+        self._tts_queue.append(text)
+  
+    def _tts_worker_loop(self):
+        while self._tts_worker_running:
+            if not self._tts_queue or self.tts_playing:
+                time.sleep(0.1)
+                continue
 
-        def tts_task(msg):
+            msg = self._tts_queue.popleft()
+            self.tts_playing = True
+            path = None
+
             try:
-                #mp3 생성
-                tts = gTTS(text=msg, lang = 'ko')
+                # 1) MP3 파일 생성
+                tts = gTTS(text=msg, lang='ko')
                 with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as fp:
                     tts.save(fp.name)
                     path = fp.name
-
-                # Popen으로 재생 → self.tts_process에 보관
-                proc = subprocess.Popen(["mpg123", path])
-                self.tts_process = proc
-                proc.wait()
                 
+                # 2) 외부 프로세스로 재생
+                proc = subprocess.Popen(["mpg123", "-q", path],
+                                        stdout=subprocess.DEVNULL,
+                                        stderr=subprocess.DEVNULL)  #실제 음성이 나오는 부분
+                self.tts_process = proc
+                proc.wait()  # 재생이 끝날 때까지 블록
             except Exception as e:
                 print(f"[TTS ERROR] {e}")
             finally:
-                # 파일 삭제, 플래그 끄기
-                try: 
-                    os.remove(path)
-                except: 
-                    pass
+                # 3) 정리
+                if path:
+                    try: os.remove(path)
+                    except: pass
                 self.tts_playing = False
                 self.tts_process = None
 
-        self.tts_thread =threading.Thread(target = tts_task, args=(text,), daemon=True)
-        self.tts_thread.start()
-
     def _stop_tts(self):
+        self._tts_queue.clear()
         #재생 중인 TTS(mp3) 프로세스를 강제 종료하고 상태 초기화
         if self.tts_process:
-            try:
-                self.tts_process.terminate()
-            except:
-                pass
+            try: self.tts_process.terminate()
+            except: pass
             self.tts_process = None
         self.tts_playing = False
 
@@ -543,7 +594,7 @@ class MainWindow(QMainWindow):
         x1, y1 = self.position #현재위치
         x0, y0 = (3.0, 13.0) #충전소 좌표
         distance =  ((x1 - x0)**2 + (y1 - y0)**2)**0.5 #현재위치와 충전소 사이 거리
-        if distance > 0.25:
+        if distance > 0.5:
             self.show_page('decision')
         else: 
             self.show_page('charging')
@@ -557,86 +608,115 @@ class MainWindow(QMainWindow):
         }
         self.tcp.send_tcp_message_um("PS", payload_to_send)
 
+        llm_place_list = payload_dict.get("destination_location")
+        llm_msg = payload_dict.get("response") or ""
+        print(f"[TCP 수신] llm메시지: {llm_msg}")
+
         if self.selected_function == 'leading_mode':
-            llm_place_list = payload_dict.get("des_name")
-            llm_place_tuple = tuple(llm_place_list)
-            llm_destination = (*llm_place_tuple, 0.0)
-            #destinations에 중복 llm_destination 들어가지 않게 방지
-            existing_coords = [(x, y) for (x, y, _) in self.destinations]
-            if llm_place_tuple not in existing_coords:
-                self.destinations.insert(0, llm_destination)
+            # llm_place_list = payload_dict.get("destination_location")
+            if llm_place_list is not None: 
+                llm_place_tuple = tuple(llm_place_list)
+                llm_destination = (*llm_place_tuple, 0.0)
+                #destinations에 중복 llm_destination 들어가지 않게 방지
+                existing_coords = [(x, y) for (x, y, _) in self.destinations]
+                if llm_place_tuple not in existing_coords:
+                    self.destinations.insert(0, llm_destination)
 
-                llm_place_key = next((k for k, v in self.place_coords.items() if tuple(v) == llm_destination),None)
-                if llm_place_key is not None:
-                    self.selected_keys.insert(0, llm_place_key)
+                    llm_place_key = next((k for k, v in self.place_coords.items() if tuple(v) == llm_destination),None)
+                    if llm_place_key is not None:
+                        self.selected_keys.insert(0, llm_place_key)
+                    else:
+                        # (옵션) 만약 매핑이 없으면 예외 처리하거나 로그 남기기
+                        print(f"[WARN] no key found for coords {llm_place_tuple}")
+                    print(f"목적지 추가됨: {llm_destination}")
+
                 else:
-                    # (옵션) 만약 매핑이 없으면 예외 처리하거나 로그 남기기
-                    print(f"[WARN] no key found for coords {llm_place_tuple}")
-                print(f"목적지 추가됨: {llm_destination}")
-                
-            else:
-                print(f"이미 존재하는 목적지, 추가 안함: {llm_destination}")
+                    print(f"이미 존재하는 목적지, 추가 안함: {llm_destination}")
 
-            print(f"가야 할 목적지: {self.destinations}")
-            payload_to_send ={
-            "robot_id": 1,
-            "user_info": None,
-            "des_coor": self.destinations}
-            self.tcp.send_tcp_message_um("ED", payload_to_send)
-            print("[TCP 전송] llm목적지 추가해서 ED 전송완료")
+                print(f"가야 할 목적지: {self.destinations}")
+                payload_to_send ={
+                "robot_id": 1,
+                "user_info": None,
+                "des_coor": self.destinations}
+                self.tcp.send_tcp_message_um("ED", payload_to_send)
+                print("[TCP 전송] llm목적지 추가해서 ED 전송완료")
 
-            llm_msg = payload_dict.get("llm_response") or ""
-            print(f"[TCP 수신] llm메시지: {llm_msg}")
 
         elif self.selected_function == 'following_mode':
-            llm_place = payload_dict.get("des_name")
-            if llm_place:
+            if llm_place_list:
                 llm_msg = "따라가는 기능 중에는 길 안내를 할 수 없어요."
-                print(f"[TCP 수신] llm목적지 : {llm_place} / 안내 불가능")
+                print(f"[TCP 수신] llm목적지 : {llm_place_list} / 안내 불가능")
         else:
             llm_msg = "나를 따라와줘 또는 길 안내해줘를 선택 후 아크를 불러주세요"
+        
         self.play_tts_async(llm_msg) # 말하자
 
 
     #tcp로 받은 것이 mu1일때
     def handle_mu1(self, payload_dict):
-        print(f"[TCP 수신] OO payload_dict 업데이트")
+        # print(f"[TCP 수신] OO payload_dict 업데이트")
         #payload_dict 에서 필요한 정보들 분리
         loadcell = payload_dict.get("loadcell")               #무게
         self.position = payload_dict.get("current_position")       #현재위치(x,y)
-        distance_state = payload_dict.get("distance_state")   #사용자와의 거리 상태
+        distance_state = payload_dict.get("distance")   #사용자와의 거리 상태
         path = payload_dict.get("path")                       #목적지까지의 경로
         #실제 gui에서 사용
         if loadcell is not None:
-            print(f"loadcell:{loadcell}")
-            self._update_loadcell_ui(loadcell)
+            # print(f"받은 loadcell:{loadcell}")
+            abs_loadcell = abs(loadcell)    #실험 일단 절댓값으로
+            self._update_loadcell_ui(abs_loadcell)
         if self.position is not None:
-            print(f"self.position: {self.position}")
+            # print(f"받은 self.position: {self.position}")
             self._update_position_ui()
         if distance_state is not None:
-            print(f"distance_state: {distance_state}")
+            # print(f"받은 distance_state: {distance_state}")
             self._update_distance_text(distance_state)
         if path is not None:
-            print(f"path {path}")
+            # print(f"받은 path : {path}")
             self.path = path   #새 path 들어오면 갱신
             self._update_map_ui(path) #맵 갱신
             if self.destinations:
                 self.calculate_total_distance(path) #최종목적지까지 관련 계산
+        #다음 목적지까지
         if self.path and self.destinations:      
             next_coord = self.destinations[0][:2]
             self.calculate_distance_to_next_destination(self.path, next_coord)
 
     def _update_loadcell_ui(self, weight):
-        print("_update_loadcell_ui함수 진입")
+        # print("_update_loadcell_ui함수 진입")
         #무게 weight_bar에 시각화
         for i in range(4, 13):
-            bar = self.findChild(QProgressBar, f"weight_bar_main{i}")
+            bar = self.findChild(QProgressBar, f"weight_bar{i}")
             if bar:
-                bar.setValue(weight)
-                bar.setFormat(f"{weight/1000:.1f}kg")
+                weight_g = int(weight*1000)
+                clamped = min(weight_g, bar.maximum())
+                bar.setValue(clamped)#단위 : g
+                bar.setFormat(f"{weight:.2f}kg")
+
+                if int(weight*1000) > bar.maximum():
+                    bar.setStyleSheet('''
+                                QProgressBar { 
+                                      border:2px solid #000000; 
+                                      background-color: #F0F0F0; 
+                                      text-align: center;               
+                                    }
+                                QProgressBar::chunk {
+                                      background-color: red; 
+                                      }''')
+                else:
+                    bar.setStyleSheet('''
+                                QProgressBar { 
+                                      border:2px solid #000000; 
+                                      background-color: #F0F0F0; 
+                                      text-align: center;               
+                                    }
+                                QProgressBar::chunk {
+                                      background-color: rgba(129, 224, 144, 180); 
+                                      }''')
+            
 
     def _update_position_ui(self):
-        print("_update_position_ui 함수 진입")
+        # print("_update_position_ui 함수 진입")
         try:
             x,y = self.position
             if self.current_page in ['select_place', 'check_goal', 'guiding']:
@@ -645,23 +725,45 @@ class MainWindow(QMainWindow):
             print("[현재 위치 업데이트 오류]")
 
     def _update_distance_text(self, state):
-        print("_update_distance_text 함수 진입")
+        # print("_update_distance_text 함수 진입")
         if hasattr(self, 'label_following_text5'): #해당 페이지에 label_following_text5가 있으면
             if state == 0: #정상
                 self.label_following_text5.setText("동행중이에요:)")
-            else:  # state == 0인 경우
+            else:  # state == 1인 경우 (정해진 거리보다 멀어졌을 때)
+                msg = "우리 사이가 조금 멀어진 것 같아요. 조금만 기다려줄래요?"
+                self.play_tts_async(msg)
                 self.label_following_text5.setText("조금만 기다려주세요, 가고 있어요!")
 
         if hasattr(self, 'label_check_place_text8'): #해당 페이지에 label_check_place_text8 있으면
-            if state: #정상
+            if state == 0: #정상
                 self.label_check_place_text8.setText("목적지로 길 안내중이에요:)")
-            else:  # state == 0인 경우
+            else:  # state == 1인 경우 (정해진 거리보다 멀어졌을 때)
+                msg = "어디갔어요? 여기서 기다릴테니 얼른 다가와주세요"
+                self.play_tts_async(msg)
                 self.label_check_place_text8.setText("잘 따라와 주세요 :)")
 
     def _update_map_ui(self, path):
-        print("_update_map_ui 함수 진입")
+        # print("_update_map_ui 함수 진입")
         if self.current_page in ['check_goal', 'guiding']:
             self.draw_path(path)
+
+    #최종 목적지까지
+    def calculate_total_distance(self, path):
+        total_dist = 0.0
+        for i in range(len(path) - 1):
+            x1, y1 = path[i]
+            x2, y2 = path[i + 1]
+            total_dist += ((x2 - x1)**2 + (y2 - y1)**2)**0.5
+        
+        total_dist = round(total_dist, 2)
+        print(f"total = {total_dist}")
+        predicted_time_s = round(total_dist / 0.2)
+        print(f"predicted_time_s : {predicted_time_s}")
+        minutes = predicted_time_s // 60
+        seconds = predicted_time_s % 60
+        predicted_time_text = f"{minutes}분 {seconds}초" if minutes else f"{seconds}초"
+        if hasattr(self, 'label_predicted_time7'):
+            self.label_predicted_time7.setText(predicted_time_text)
 
     #다음 목적지까지
     def calculate_distance_to_next_destination(self, path, next_goal):
@@ -686,40 +788,33 @@ class MainWindow(QMainWindow):
             # 목적지에 가까워졌다면 종료
             if ((x2 - next_goal[0]) ** 2 + (y2 - next_goal[1]) ** 2) ** 0.5 < tolerance:
                 break
-        #다음 목적지까지 남은 거리 page_guiding에 띄우기 (속도: 0.5m/s 기준)
+        #다음 목적지까지 남은 거리 page_guiding에 띄우기 (속도: 0.2m/s 기준)
         next_goal_dist = round(next_goal_dist, 2)
+        print(f"next_dist = {next_goal_dist}")
         if hasattr(self, 'label_remained_distance8'):
             self.label_remained_distance8.setText(f"{next_goal_dist}m")
         #다음 목적지까지 남은 시간 page_guiding에 띄우기
-        remained_time_s = round(next_goal_dist / 0.5)
+        remained_time_s = round(next_goal_dist / 0.2)
+        print(f"remained_time : {remained_time_s}")
         minutes = remained_time_s // 60
         seconds = remained_time_s % 60
         remained_time_text = f"{minutes}분 {seconds}초" if minutes else f"{seconds}초"
-        if hasattr(self, 'label_predicted_time8'):
-            self.label_predicted_time8.setText(remained_time_text)
-        
-    #최종 목적지까지
-    def calculate_total_distance(self, path):
-        total_dist = 0.0
-        for i in range(len(path) - 1):
-            x1, y1 = path[i]
-            x2, y2 = path[i + 1]
-            total_dist += ((x2 - x1)**2 + (y2 - y1)**2)**0.5
-        
-        total_dist = round(total_dist, 2)
-        if hasattr(self, 'label_remained_distance7'):
-            self.label_remained_distance7.setText(f"{total_dist}m")
+        if hasattr(self, 'label_remained_time8'):
+            self.label_remained_time8.setText(remained_time_text)
 
-
-#맵 시각화 관련 #맵좌표 기반 
-    #실제 좌표 -> scene 좌표 변환 함수
     def real_to_scene(self, x_m, y_m):
-        y_rot_ref, x_rot_ref = -5.500000000000071, 0.0 #실좌표 회전
-        px_ref, py_ref = 272.0, 460.0 #맵좌표
-        offset_x = px_ref - x_rot_ref * self.SCALE
-        offset_y = py_ref + y_rot_ref * self.SCALE
-        x = x_m * self.SCALE + offset_x     #맵 용 x좌표
-        y = -y_m * self.SCALE + offset_y   #맵 용 y좌표
+        #월드 좌표를 맵 픽셀로 변환
+        map_x = (x_m - self.origin[0]) / self.resolution
+        map_y = (-y_m - self.origin[1]) / self.resolution
+        #회전 보정 (90도 회전)
+        scene_x = self.map_image.height() - map_y
+        scene_y = map_x
+        #위치 보정 (예: 원점이 지도에서 조금 위쪽으로 있어야 함)
+        offset_x = -12     # 좌우 보정
+        offset_y = -5    # 상하 보정
+
+        x = scene_x + offset_x
+        y = scene_y + offset_y
         return x,y
 
     #로봇 현재 위치 업데이트
@@ -730,8 +825,9 @@ class MainWindow(QMainWindow):
     #실좌표 받아서 맵좌표로 변환 후 경로 그리기
     def draw_path(self, path_points):
         # 기존 선 제거
-        for item in getattr(self, "path_items", []):
-            self.scene.removeItem(item)
+        for item in list(self.scene.items()):
+            if isinstance(item, QGraphicsLineItem):
+                self.scene.removeItem(item)
         self.path_items = []
 
         try:
@@ -745,25 +841,11 @@ class MainWindow(QMainWindow):
 
                 # 선 그리기
                 line = QGraphicsLineItem(x1, y1, x2, y2)
-                line.setPen(QPen(Qt.blue, 3))
+                line.setPen(QPen(Qt.blue, 1))
                 self.scene.addItem(line)
                 self.path_items.append(line)
         except Exception as e:
             print("[경로 그리기 오류]", e)
-
-    # def eventFilter(self, obj, event):
-    #         from PyQt5.QtCore import QEvent, Qt
-
-    #         # 오직 view_map6의 viewport 클릭만 처리
-    #         if obj is self.view_map6.viewport() \
-    #         and event.type() == QEvent.MouseButtonPress \
-    #         and event.button() == Qt.LeftButton:
-
-    #             scene_pt = self.view_map6.mapToScene(event.pos())
-    #             print(f"[map6 클릭] 씬 좌표: ({scene_pt.x():.1f}, {scene_pt.y():.1f})")
-
-    #         # 나머지 이벤트는 기본 처리로 넘기기
-    #         return super().eventFilter(obj, event)
 
 # ===========================================================================
     # 1) page_main (main)
@@ -778,7 +860,9 @@ class MainWindow(QMainWindow):
     #main_page 들어갔을 때 하는 일
     def _enter_main(self):
         self.reset_all()
-        print(f"page_main : {self.selected_function}")
+        msg = "반가워요, 저는 아크에요! 아래에서 필요한 기능을 선택해주세요"
+        self.play_tts_async(msg)
+        # print(f"page_main : {self.selected_function}")
 
     #following 또는 leading 중에 뭐 눌렀는 지 저장
     def _select_and_scan(self, mode):
@@ -790,6 +874,11 @@ class MainWindow(QMainWindow):
         self.tcp.send_tcp_message_um("PS", payload_to_send)
         print("[TCP] PS 전송 완료")
         self.selected_function = mode
+        if self.selected_function == "following_mode":
+            msg = "넵 따라갈게요! 궁금한 게 있을 때 질문 앞에 아크야를 붙여서 질문해주시면 친절히 답 드릴게요"
+        else:
+            msg = "저만 믿으세요! 원하시는 목적지까지 잘 데려다 드릴게요"
+        self.play_tts_async(msg)
         self.show_page('scan')
 
     #한글 모드로
@@ -813,6 +902,8 @@ class MainWindow(QMainWindow):
 
     #page_scan들어갔을 때 하는 일
     def _enter_scan(self):
+        msg = "전방 카메라에 탑승권을 보여주세요!"
+        self.play_tts_async(msg)
         print(f"page_scan: {self.selected_function}")
         self.camera.start()
 
@@ -858,10 +949,10 @@ class MainWindow(QMainWindow):
     #qr이미지에서 정보 얻어와서 사용할 수 있게 제작, 비밀번호 설정
     def _on_qr_detected(self, data):
         #qr 정보 얻기
-        info = data.split(',')
-        self.scanned_data = info
+        self.scanned_data = data.split(',')
+        print(f"scanned_data : {self.scanned_data}")
         # 탑승권 번호 마지막 4자리 correct_password로 저장.
-        last4 = str(info[0])[-4:]
+        last4 = str(self.scanned_data[0])[-4:]
         self.correct_password = f"#{last4}*"
         print(self.correct_password)
         # 얻을 거 다 얻으면 카메라 끄고 다음 페이지로
@@ -882,18 +973,20 @@ class MainWindow(QMainWindow):
 
     #qr 정보 테이블위젯에 채우기
     def _enter_check_info(self):
-        print(f"page_check_info: {self.selected_function}")
+        # print(f"page_check_info: {self.selected_function}")
+        msg = "제가 인식한 정보가 맞는지 확인 부탁드려요"
+        self.play_tts_async(msg)
         keys = [
-            'ticket_number',  #탑승권번호
-            'name',           #이름
-            'age',            #나이
-            'gender',         #성별
-            'departure',      #출국지
-            'arrival',        #입국지
-            'seat',           #좌석
-            'boarding_gate',  #탑승게이트
-            'boarding_time',  #탑승시간
-            'departure_time'  #출발시간
+            'ticket',  #탑승권번호
+            'name',    #이름
+            'age',     #나이
+            'sex',     #성별
+            'from',    #출국지
+            'to',      #입국지
+            'seat',    #좌석
+            'gate',    #탑승게이트
+            'boarding',#탑승시간
+            'departure'#출발시간
         ]
         
         for i, val in enumerate(self.scanned_data):
@@ -941,8 +1034,10 @@ class MainWindow(QMainWindow):
 
     #page_loading 들어갔을 때 하는 일
     def _enter_loading(self):
-        print(f"page_loading: {self.selected_function}")
-        pass
+        if self.before_page == "check_info":
+            msg = "짐을 저에게 보관해주세요! 20kg가 넘으면 출발을 못 하니 주의해주세요"
+            self.play_tts_async(msg)
+        # print(f"page_loading: {self.selected_function}")
        
 
     #page_loading에서 나갈 때 하는 일
@@ -975,7 +1070,9 @@ class MainWindow(QMainWindow):
 
     #page_following 들어갔을 때 하는 일
     def _enter_following(self):
-        print(f"page_following: {self.selected_function}")
+        msg = "잘 따라갈 테니 걱정마세요! 거리가 멀어지면 말씀 드릴게요"
+        self.play_tts_async(msg)
+        # print(f"page_following: {self.selected_function}")
         
 
     #page_following 나올 때 하는 일
@@ -993,6 +1090,8 @@ class MainWindow(QMainWindow):
             }
             self.tcp.send_tcp_message_um("PS", payload_to_send)
             print("[TCP] PS 전송 완료")
+            msg = "일시정지를 눌렀네요"
+            self.play_tts_async(msg)
             self.btn_pause5.setText("주행시작")
             self.is_paused_f = True
             self.show_page("waiting")
@@ -1005,6 +1104,8 @@ class MainWindow(QMainWindow):
             }
             self.tcp.send_tcp_message_um("FW", payload_to_send)
             print("[TCP] FW 전송 완료")
+            msg = "다시 잘 따라갈게요"
+            self.play_tts_async(msg)
             self.btn_pause5.setText("일시정지")
             self.is_paused_f = False
 
@@ -1021,8 +1122,24 @@ class MainWindow(QMainWindow):
 
     #page_select_place 들어갔을 때 하는 일
     def _enter_select_place(self):
-        print(f"page_select_place: {self.selected_function}")
+        if self.before_page == 'loading':
+            msg = "가고싶은 목적지를 순서대로 선택해주세요. 버튼을 다시 누르시면 취소 가능해요"
+            self.play_tts_async(msg)
+        # → 경로 아이템 삭제(해당 페이지에는 경로 그리지 않도록)
+        for item in list(self.scene.items()):
+            if isinstance(item, QGraphicsLineItem):
+                self.scene.removeItem(item)
+        self.path_items = []
+        # print(f"page_select_place: {self.selected_function}")
         self.view_map6.setScene(self.scene)  #맵에 현재 위치 시각화
+        # 기존 변형 초기화
+        self.view_map6.resetTransform()
+        # 동훈님 방법====
+        self.view_map6.scale(3.0, 3.0)
+        #============
+
+
+
 
     #page_select_place 나올 때 하는 일
     def _exit_select_place(self):
@@ -1058,15 +1175,28 @@ class MainWindow(QMainWindow):
         print(f"목적지 선택중(des): {self.destinations}")
         print(f"도착한 장소: {self.arrived_place}")
 
+    #page_selected_place의 장소버튼 색깔 변경
+    def _refresh_place_buttons(self):
+        for key in self.place_coords:
+            btn = self.findChild(QPushButton, f'btn_place_{key}')
+            if not btn:
+                continue
+            if key in self.selected_keys:
+                btn.setStyleSheet("background-color: lightblue;")
+            else:
+                btn.setStyleSheet("")
+
     def _check_goal(self):
         payload_to_send = {
             "robot_id": 1,
             "user_info": self.user_info,
-            "des_coor": self.selected_keys
+            "des_coor": self.destinations
         }
         self.tcp.send_tcp_message_um("CK", payload_to_send)
         print("[TCP] CK 전송 완료")
         self.show_page("check_goal")
+    
+
 
 # ===========================================================================
     # 7) page_check_goal
@@ -1079,11 +1209,19 @@ class MainWindow(QMainWindow):
 
     #들어갈 때 하는 일
     def _enter_check_goal(self):
+        place_text = ' '.join(self.selected_keys)
+        msg = f"{place_text}를 선택했네요. 경로를 확인해주세요"
+        self.play_tts_async(msg)
         print(f"page_check_goal: {self.selected_function}")
         print(f"선택된 목적지(key): {self.selected_keys}")
         print(f"선택된 목적지(des): {self.destinations}")
         print(f"도착한 장소: {self.arrived_place}")
-        self.view_map7.setScene(self.scene)  #맵에 현재 위치, 경로 시각화 
+        self.view_map7.setScene(self.scene)  #맵에 현재 위치, 경로 시각화
+        #스케일 했던 거 갱신
+        self.view_map7.resetTransform()
+        #==================
+        self.view_map7.scale(3.0, 3.0) 
+        #==================
 
     #나올 때 하는 일
     def _start_guide(self):
@@ -1109,6 +1247,8 @@ class MainWindow(QMainWindow):
         self.show_page('guiding')
 
     def _change_place_from_check_goal(self):
+        msg = "가고 싶은 목적지를 다시 순서대로 선택해주세요"
+        self.play_tts_async(msg)
         self.edit = True
         self.show_page("select_place")
 
@@ -1123,11 +1263,20 @@ class MainWindow(QMainWindow):
 
     #들어갈 때 하는 일
     def _enter_guiding(self):
+        
+        msg = f"{self.selected_keys[0]}까지 안내해 드릴게요. 저를 따라오세요"
+        self.play_tts_async(msg)
         print(f"page_guiding: {self.selected_function}")
         print(f"진짜 선택된 목적지(key): {self.selected_keys}")
         print(f"진짜 선택되 목적지(des): {self.destinations}")
         print(f"도착한 장소: {self.arrived_place}")
         self.view_map8.setScene(self.scene)  #맵에 현재 위치, 경로 시각화
+
+        #스케일 했던 거 갱신
+        self.view_map8.resetTransform()
+        #==========
+        self.view_map8.scale(3.0, 3.0)
+        # =========
 
     #나올 때 하는 일
     def _exit_guiding(self):
@@ -1144,6 +1293,8 @@ class MainWindow(QMainWindow):
             }
             self.tcp.send_tcp_message_um("PS", payload_to_send)
             print("[TCP] PS 전송 완료")
+            msg = "일시정지를 눌렀네요"
+            self.play_tts_async(msg)
             self.btn_pause8.setText("이어서 안내시작")
             self.show_page("user_valid")
         else: #이어서 안내시작 눌렀을 때
@@ -1166,6 +1317,8 @@ class MainWindow(QMainWindow):
         }
         self.tcp.send_tcp_message_um("PS", payload_to_send)
         print("[TCP] PS 전송 완료")
+        msg = "가고 싶은 목적지를 다시 순서대로 선택해주세요"
+        self.play_tts_async(msg)
         self.edit = True
         self.show_page("select_place")
 
@@ -1182,8 +1335,15 @@ class MainWindow(QMainWindow):
     
     #page_decision_after_arrived 들어갈 때 하는 일
     def _enter_decision(self):
+        if self.before_page == "guiding":
+            msg = f"{self.selected_keys[0]}에 도착했어요. 이제 무엇을 할 지 선택해주세요"
+        else:
+            msg = "이제 무엇을 할 지 선택해주세요"
+        self.play_tts_async(msg)
         print("I arrived")
         print(f"page_decision_after_arrived: {self.selected_function}")
+
+        self.decision_timer.start(20000) #들어오고 20초 반응 없으면 rt쏘고 복귀
         if not self.destinations:
             return
         arrived = self.destinations.pop(0)
@@ -1209,30 +1369,35 @@ class MainWindow(QMainWindow):
         print(f"새로 도착한 장소: {self.arrived_place}")
 
 
-    #page_selected_place의 장소버튼 색깔 변경
-    def _refresh_place_buttons(self):
-        for key in self.place_coords:
-            btn = self.findChild(QPushButton, f'btn_place_{key}')
-            if not btn:
-                continue
-            if key in self.selected_keys:
-                btn.setStyleSheet("background-color: lightblue;")
-            else:
-                btn.setStyleSheet("")
+    def _exit_decision(self):
+       # decision 페이지를 벗어날 때 타이머 자동 취소
+        if hasattr(self, 'decision_timer') and self.decision_timer.isActive():
+            self.decision_timer.stop()
 
     #다음 목적지로 계속 이동
     def _go_next_goal(self):
-        payload_to_send = {
-            "robot_id": 1,
-            "user_info": None,
-            "des_coor": self.destinations
-        }
-        self.tcp.send_tcp_message_um("LD", payload_to_send) 
-        print("[TCP] LD 전송 완료")
-        self.show_page("guiding")
+        if hasattr(self, 'decision_timer') and self.decision_timer.isActive():
+            self.decision_timer.stop()
+            self.show_page("decision")
+
+        if self.destinations:
+            payload_to_send = {
+                "robot_id": 1,
+                "user_info": None,
+                "des_coor": self.destinations
+            }
+            print(f"des : {self.destinations}")
+            self.tcp.send_tcp_message_um("LD", payload_to_send) 
+            print("[TCP] LD 전송 완료")
+            self.show_page("guiding")
+        else:
+            msg = "선택하신 목적지들을 다 안내해드렸어요. 가고싶은 곳이 추가로 있으시다면 목적지 변경할래를 선택해주시고 아니라면 수고했어를 눌러주세요."
+            self.play_tts_async(msg)
 
     #목적지 변경 선택 시
     def _change_place_from_decision(self):
+        msg = "가고 싶은 목적지를 다시 순서대로 선택해주세요"
+        self.play_tts_async(msg)
         self.edit = True
         self.show_page("select_place")
 
@@ -1247,6 +1412,21 @@ class MainWindow(QMainWindow):
         print("[TCP] PS 전송 완료")
         self.show_page("waiting")
 
+    def _on_decision_timeout(self):
+        # 아직 decision 페이지에 머물러 있을 때만 동작
+        if self.current_page != "decision":
+            return
+
+        # TTS 안내
+        self.play_tts_async("반응이 없어 충전소로 자동복귀할게요")
+        payload_to_send = {
+            "robot_id": 1,
+            "user_info": None,
+            "des_coor": [(3.0,13.0,0.0)] #충전소 좌표
+        }
+        self.tcp.send_tcp_message_um("RT", payload_to_send)
+        self.show_page("main")
+        print("[TCP] RT 전송 완료 (타임아웃)")
 
 # ===========================================================================
     # 10) page_waiting
@@ -1258,7 +1438,10 @@ class MainWindow(QMainWindow):
 
     #page_waiting 들어갈 때 하는 일
     def _enter_waiting(self):
-        print(f"page_waiting: {self.selected_function}")
+        msg = "네 여기서 기다릴게요! 돌아오시면 나 왔어 버튼을 눌러주세요"
+        self.play_tts_async(msg)
+        # print(f"page_waiting: {self.selected_function}")
+
 
 # ===========================================================================
     # 11) page_user_valid
@@ -1275,8 +1458,10 @@ class MainWindow(QMainWindow):
 
     #page_user_valid 들어갈 때 하는 일
     def _enter_user_valid(self):
-        print(f"page_user_valid: {self.selected_function}")
+        # print(f"page_user_valid: {self.selected_function}")
         self.pushed_valid_btn = ''
+        msg = "비밀번호를 입력해주세요. 비밀번호는 탑승권 마지막 4자리입니다."
+        self.play_tts_async(msg)
         self.label_ps_text11.setText('돌아오셨나요? 비밀번호를 입력해주세요')
 
     #비밀번호키 입력값 기억, 비교, 결과
@@ -1292,6 +1477,8 @@ class MainWindow(QMainWindow):
                 else:
                     self.show_page('following')
             else:
+                msg ="비밀번호가 틀렸습니다. 다시 입력해주세요"
+                self.play_tts_async(msg)
                 self.label_ps_text11.setText("인증 실패")
                 self.pushed_valid_btn = ''
 
@@ -1310,11 +1497,14 @@ class MainWindow(QMainWindow):
         }
         self.tcp.send_tcp_message_um("PS", payload_to_send)
         print("[TCP] PS 전송 완료")
+        msg = "도움이 되어 기뻤어요. 행복한 여행 되세요"
+        self.play_tts_async(msg)
+
         self.blink = False
         self.bye_timer = QTimer(self)
         self.bye_timer.timeout.connect(self._blink_bye)
         self.bye_timer.start(1000)
-        QTimer.singleShot(4000, self._send_um3_and_go_home)
+        QTimer.singleShot(6000, self._send_um3_and_go_home)
 
     def _exit_bye(self):
         self.bye_timer.stop()
@@ -1328,14 +1518,16 @@ class MainWindow(QMainWindow):
         payload_to_send = {
             "robot_id": 1,
             "user_info": None,
-            "des_coor": [(3.0,13.0,0.0)] #충전소 좌표 넣기
+            "des_coor": [(3.0,13.0,0.0)] #충전소 좌표
         }
         self.tcp.send_tcp_message_um("RT", payload_to_send)
         print("[TCP] RT 전송 완료")
+        msg = "충전소로 복귀할게요"
+        self.play_tts_async(msg)
         self.show_page("main")
 
 # ===========================================================================
-    # 13) page_charging
+    # 13) page_charging  #지금 안 쓰이고 있음. 빠때리 몇 이하일 때 행동 조건 만들기
 # ===========================================================================
     def _connect_page_charging(self):
         pass
@@ -1369,13 +1561,9 @@ class MainWindow(QMainWindow):
 #  닫아
 # ==================================================================================   
     def closeEvent(self, event):   # Qt 프레임워크가 메인 윈도우가 닫힐 때 자동으로 실행하는 이벤트 핸들러
-        # — 남아 있을 수 있는 mpg123 프로세스만 명시적으로 종료 —
-        if self.tts_process:
-            try:
-                self.tts_process.terminate()
-            except:
-                pass
-
+        self._stop_tts()
+        self._tts_worker_running = False
+        self._tts_worker.join(timeout=1.0) # 최대 1초 기다리고 넘어감
         #CameraThread 안전 종료
         if hasattr(self, 'camera'):
             self.camera.stop()  # threading.Thread.join() 호출로 안전 종료
@@ -1383,7 +1571,7 @@ class MainWindow(QMainWindow):
         if hasattr(self, 'tcp'):
             self.tcp.close()
 
-        event.accept()
+        event.accept() # Qt의 이벤트 시스템에 **“이 CloseEvent를 내가 처리했고, 윈도우를 닫아도 좋다”**라고 알려 주는 호출
 
 
 if __name__ == '__main__':

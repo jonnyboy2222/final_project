@@ -5801,7 +5801,7 @@ QTableWidget::item {
        </size>
       </property>
      </widget>
-     <widget class="QProgressBar" name="weight_bar_main4">
+     <widget class="QProgressBar" name="weight_bar4">
       <property name="geometry">
        <rect>
         <x>90</x>
@@ -5820,14 +5820,12 @@ QTableWidget::item {
       <property name="styleSheet">
        <string notr="true">QProgressBar {
     border: 2px solid #000000;         /* 테두리: 불투명 회색 */
-    border-radius: 30px;               /* 둥글게 */
     background-color: #F0F0F0;         /* 배경: 불투명 연회색 */
     text-align: center;                /* 텍스트 중앙 정렬 */
 }
 
 QProgressBar::chunk {
     background-color: rgba(129, 224, 144, 180);  /* 초록색 chunk만 반투명 */
-    border-radius: 30px;
 }
 </string>
       </property>
@@ -5971,11 +5969,11 @@ QProgressBar::chunk {
      <zorder>label_end_load4</zorder>
      <zorder>btn_back4</zorder>
      <zorder>btn_home4</zorder>
-     <zorder>weight_bar_main4</zorder>
      <zorder>label_min_weight4</zorder>
      <zorder>label_max_weight4</zorder>
      <zorder>btn_end_loading4</zorder>
      <zorder>btn_deny_load4</zorder>
+     <zorder>weight_bar4</zorder>
     </widget>
     <widget class="QWidget" name="page_following">
      <widget class="QFrame" name="topbar5">
@@ -7844,14 +7842,14 @@ QProgressBar::chunk {
 </string>
       </property>
       <property name="text">
-       <string>시작</string>
+       <string>확인</string>
       </property>
      </widget>
      <widget class="QPushButton" name="btn_place_info_desk">
       <property name="geometry">
        <rect>
         <x>880</x>
-        <y>540</y>
+        <y>510</y>
         <width>86</width>
         <height>31</height>
        </rect>
@@ -7875,8 +7873,8 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_restaurant_K">
       <property name="geometry">
        <rect>
-        <x>750</x>
-        <y>390</y>
+        <x>760</x>
+        <y>380</y>
         <width>86</width>
         <height>31</height>
        </rect>
@@ -7898,7 +7896,7 @@ QProgressBar::chunk {
       <property name="geometry">
        <rect>
         <x>960</x>
-        <y>676</y>
+        <y>650</y>
         <width>86</width>
         <height>31</height>
        </rect>
@@ -7919,8 +7917,8 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_gate2">
       <property name="geometry">
        <rect>
-        <x>910</x>
-        <y>400</y>
+        <x>930</x>
+        <y>380</y>
         <width>86</width>
         <height>31</height>
        </rect>
@@ -7962,8 +7960,8 @@ QProgressBar::chunk {
        <rect>
         <x>60</x>
         <y>180</y>
-        <width>1380</width>
-        <height>612</height>
+        <width>1374</width>
+        <height>567</height>
        </rect>
       </property>
       <property name="styleSheet">
@@ -7984,7 +7982,7 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_shop_S">
       <property name="geometry">
        <rect>
-        <x>383</x>
+        <x>379</x>
         <y>360</y>
         <width>86</width>
         <height>31</height>
@@ -8006,7 +8004,7 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_shop_L">
       <property name="geometry">
        <rect>
-        <x>193</x>
+        <x>190</x>
         <y>430</y>
         <width>86</width>
         <height>31</height>
@@ -8073,8 +8071,8 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_gate3">
       <property name="geometry">
        <rect>
-        <x>580</x>
-        <y>690</y>
+        <x>582</x>
+        <y>668</y>
         <width>86</width>
         <height>31</height>
        </rect>
@@ -8095,8 +8093,8 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_toilet_e">
       <property name="geometry">
        <rect>
-        <x>770</x>
-        <y>690</y>
+        <x>769</x>
+        <y>668</y>
         <width>86</width>
         <height>31</height>
        </rect>
@@ -8117,8 +8115,8 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_convenience_store">
       <property name="geometry">
        <rect>
-        <x>1060</x>
-        <y>540</y>
+        <x>1070</x>
+        <y>470</y>
         <width>86</width>
         <height>31</height>
        </rect>
@@ -8139,8 +8137,8 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_cafe">
       <property name="geometry">
        <rect>
-        <x>710</x>
-        <y>540</y>
+        <x>720</x>
+        <y>510</y>
         <width>86</width>
         <height>31</height>
        </rect>
@@ -8161,7 +8159,7 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_toilet_w">
       <property name="geometry">
        <rect>
-        <x>193</x>
+        <x>188</x>
         <y>250</y>
         <width>86</width>
         <height>31</height>
@@ -8884,7 +8882,7 @@ QProgressBar::chunk {
       <property name="geometry">
        <rect>
         <x>1230</x>
-        <y>510</y>
+        <y>470</y>
         <width>180</width>
         <height>120</height>
        </rect>
@@ -8910,7 +8908,7 @@ QProgressBar::chunk {
 </string>
       </property>
       <property name="text">
-       <string>확인</string>
+       <string>시작</string>
       </property>
      </widget>
      <widget class="QProgressBar" name="weight_bar7">
@@ -9104,7 +9102,7 @@ QProgressBar::chunk {
       <property name="geometry">
        <rect>
         <x>1230</x>
-        <y>650</y>
+        <y>610</y>
         <width>180</width>
         <height>120</height>
        </rect>
@@ -9155,9 +9153,9 @@ QProgressBar::chunk {
      <widget class="QLabel" name="label_time_text7">
       <property name="geometry">
        <rect>
-        <x>1240</x>
+        <x>1210</x>
         <y>210</y>
-        <width>171</width>
+        <width>201</width>
         <height>41</height>
        </rect>
       </property>
@@ -9169,7 +9167,7 @@ QProgressBar::chunk {
        </font>
       </property>
       <property name="text">
-       <string>예상 소요시간</string>
+       <string>총 예상 소요시간</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_predicted_time7">
@@ -9197,8 +9195,8 @@ QProgressBar::chunk {
        <rect>
         <x>60</x>
         <y>180</y>
-        <width>1380</width>
-        <height>612</height>
+        <width>1374</width>
+        <height>567</height>
        </rect>
       </property>
       <property name="styleSheet">
@@ -9219,14 +9217,15 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_toilet_w_2">
       <property name="geometry">
        <rect>
-        <x>193</x>
+        <x>160</x>
         <y>250</y>
-        <width>86</width>
+        <width>111</width>
         <height>31</height>
        </rect>
       </property>
       <property name="font">
        <font>
+        <pointsize>15</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -9252,6 +9251,7 @@ QProgressBar::chunk {
       </property>
       <property name="font">
        <font>
+        <pointsize>15</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -9269,14 +9269,15 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_cafe_2">
       <property name="geometry">
        <rect>
-        <x>710</x>
-        <y>540</y>
+        <x>711</x>
+        <y>518</y>
         <width>86</width>
         <height>31</height>
        </rect>
       </property>
       <property name="font">
        <font>
+        <pointsize>15</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -9294,14 +9295,15 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_gate1_2">
       <property name="geometry">
        <rect>
-        <x>960</x>
-        <y>676</y>
+        <x>990</x>
+        <y>640</y>
         <width>86</width>
         <height>31</height>
        </rect>
       </property>
       <property name="font">
        <font>
+        <pointsize>15</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -9320,13 +9322,14 @@ QProgressBar::chunk {
       <property name="geometry">
        <rect>
         <x>910</x>
-        <y>400</y>
+        <y>390</y>
         <width>86</width>
         <height>31</height>
        </rect>
       </property>
       <property name="font">
        <font>
+        <pointsize>15</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -9344,7 +9347,7 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_restaurant_C_2">
       <property name="geometry">
        <rect>
-        <x>193</x>
+        <x>200</x>
         <y>630</y>
         <width>86</width>
         <height>31</height>
@@ -9352,6 +9355,7 @@ QProgressBar::chunk {
       </property>
       <property name="font">
        <font>
+        <pointsize>15</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -9369,14 +9373,15 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_shop_H_2">
       <property name="geometry">
        <rect>
-        <x>383</x>
-        <y>530</y>
-        <width>86</width>
-        <height>31</height>
+        <x>380</x>
+        <y>510</y>
+        <width>131</width>
+        <height>51</height>
        </rect>
       </property>
       <property name="font">
        <font>
+        <pointsize>15</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -9394,14 +9399,15 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_shop_S_2">
       <property name="geometry">
        <rect>
-        <x>383</x>
-        <y>360</y>
-        <width>86</width>
-        <height>31</height>
+        <x>380</x>
+        <y>340</y>
+        <width>121</width>
+        <height>51</height>
        </rect>
       </property>
       <property name="font">
        <font>
+        <pointsize>15</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -9419,14 +9425,15 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_shop_L_2">
       <property name="geometry">
        <rect>
-        <x>193</x>
+        <x>160</x>
         <y>430</y>
-        <width>86</width>
-        <height>31</height>
+        <width>111</width>
+        <height>41</height>
        </rect>
       </property>
       <property name="font">
        <font>
+        <pointsize>15</pointsize>
         <weight>75</weight>
         <bold>true</bold>
         <underline>false</underline>
@@ -9445,14 +9452,15 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_toilet_e_2">
       <property name="geometry">
        <rect>
-        <x>770</x>
-        <y>690</y>
-        <width>86</width>
+        <x>760</x>
+        <y>670</y>
+        <width>111</width>
         <height>31</height>
        </rect>
       </property>
       <property name="font">
        <font>
+        <pointsize>15</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -9470,14 +9478,15 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_gate3_2">
       <property name="geometry">
        <rect>
-        <x>580</x>
-        <y>690</y>
+        <x>590</x>
+        <y>670</y>
         <width>86</width>
         <height>31</height>
        </rect>
       </property>
       <property name="font">
        <font>
+        <pointsize>15</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -9495,14 +9504,15 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_convenience_store_2">
       <property name="geometry">
        <rect>
-        <x>1060</x>
-        <y>540</y>
+        <x>1070</x>
+        <y>470</y>
         <width>86</width>
         <height>31</height>
        </rect>
       </property>
       <property name="font">
        <font>
+        <pointsize>15</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -9520,14 +9530,15 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_info_desk_2">
       <property name="geometry">
        <rect>
-        <x>880</x>
-        <y>540</y>
-        <width>86</width>
+        <x>870</x>
+        <y>517</y>
+        <width>111</width>
         <height>31</height>
        </rect>
       </property>
       <property name="font">
        <font>
+        <pointsize>15</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -10435,8 +10446,8 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_pause8">
       <property name="geometry">
        <rect>
-        <x>1380</x>
-        <y>610</y>
+        <x>1250</x>
+        <y>560</y>
         <width>161</width>
         <height>71</height>
        </rect>
@@ -10465,8 +10476,8 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_change_place8">
       <property name="geometry">
        <rect>
-        <x>1380</x>
-        <y>710</y>
+        <x>1250</x>
+        <y>660</y>
         <width>161</width>
         <height>71</height>
        </rect>
@@ -10495,9 +10506,9 @@ QProgressBar::chunk {
      <widget class="QLabel" name="label_distance_text8">
       <property name="geometry">
        <rect>
-        <x>1430</x>
-        <y>360</y>
-        <width>41</width>
+        <x>1270</x>
+        <y>330</y>
+        <width>151</width>
         <height>41</height>
        </rect>
       </property>
@@ -10512,7 +10523,7 @@ QProgressBar::chunk {
        <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
       </property>
       <property name="text">
-       <string>거리</string>
+       <string>다음 목적지까지</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -10521,8 +10532,8 @@ QProgressBar::chunk {
      <widget class="QLabel" name="label_distance_icon8">
       <property name="geometry">
        <rect>
-        <x>1340</x>
-        <y>360</y>
+        <x>1180</x>
+        <y>330</y>
         <width>91</width>
         <height>81</height>
        </rect>
@@ -10551,8 +10562,8 @@ QProgressBar::chunk {
      <widget class="QLabel" name="label_remained_distance8">
       <property name="geometry">
        <rect>
-        <x>1430</x>
-        <y>390</y>
+        <x>1270</x>
+        <y>360</y>
         <width>141</width>
         <height>61</height>
        </rect>
@@ -10577,8 +10588,8 @@ QProgressBar::chunk {
      <widget class="QLabel" name="label_time_icon8">
       <property name="geometry">
        <rect>
-        <x>1340</x>
-        <y>240</y>
+        <x>1180</x>
+        <y>210</y>
         <width>91</width>
         <height>81</height>
        </rect>
@@ -10607,8 +10618,8 @@ QProgressBar::chunk {
      <widget class="QLabel" name="label_time_text8">
       <property name="geometry">
        <rect>
-        <x>1430</x>
-        <y>250</y>
+        <x>1270</x>
+        <y>220</y>
         <width>131</width>
         <height>31</height>
        </rect>
@@ -10624,7 +10635,7 @@ QProgressBar::chunk {
        <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
       </property>
       <property name="text">
-       <string>예상 소요 시간</string>
+       <string>다음 목적지까지</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -10633,8 +10644,8 @@ QProgressBar::chunk {
      <widget class="QLabel" name="label_remained_time8">
       <property name="geometry">
        <rect>
-        <x>1430</x>
-        <y>270</y>
+        <x>1270</x>
+        <y>240</y>
         <width>181</width>
         <height>51</height>
        </rect>
@@ -10680,8 +10691,8 @@ QProgressBar::chunk {
        <rect>
         <x>60</x>
         <y>180</y>
-        <width>1261</width>
-        <height>631</height>
+        <width>1374</width>
+        <height>567</height>
        </rect>
       </property>
       <property name="styleSheet">
@@ -10693,17 +10704,18 @@ QProgressBar::chunk {
 }</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="btn_place_shop_S_3">
+     <widget class="QPushButton" name="btn_place_shop_H_3">
       <property name="geometry">
        <rect>
-        <x>383</x>
-        <y>360</y>
-        <width>86</width>
-        <height>31</height>
+        <x>370</x>
+        <y>500</y>
+        <width>131</width>
+        <height>51</height>
        </rect>
       </property>
       <property name="font">
        <font>
+        <pointsize>15</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -10712,32 +10724,7 @@ QProgressBar::chunk {
        <string notr="true">background-color: #1976D2;</string>
       </property>
       <property name="text">
-       <string>신세계 면세점</string>
-      </property>
-      <property name="flat">
-       <bool>true</bool>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="btn_place_convenience_store_3">
-      <property name="geometry">
-       <rect>
-        <x>1060</x>
-        <y>540</y>
-        <width>86</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: #1976D2;</string>
-      </property>
-      <property name="text">
-       <string>편의점</string>
+       <string>현대 면세점</string>
       </property>
       <property name="flat">
        <bool>true</bool>
@@ -10754,6 +10741,7 @@ QProgressBar::chunk {
       </property>
       <property name="font">
        <font>
+        <pointsize>15</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -10768,92 +10756,18 @@ QProgressBar::chunk {
        <bool>true</bool>
       </property>
      </widget>
-     <widget class="QPushButton" name="btn_place_info_desk_3">
-      <property name="geometry">
-       <rect>
-        <x>880</x>
-        <y>540</y>
-        <width>86</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: #1976D2;</string>
-      </property>
-      <property name="text">
-       <string>안내 데스크</string>
-      </property>
-      <property name="flat">
-       <bool>true</bool>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="btn_place_gate2_3">
-      <property name="geometry">
-       <rect>
-        <x>890</x>
-        <y>400</y>
-        <width>86</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: #1976D2;</string>
-      </property>
-      <property name="text">
-       <string>게이트2</string>
-      </property>
-      <property name="flat">
-       <bool>true</bool>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="btn_place_toilet_e_3">
-      <property name="geometry">
-       <rect>
-        <x>770</x>
-        <y>690</y>
-        <width>86</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: #1976D2;</string>
-      </property>
-      <property name="text">
-       <string>화장실 동편</string>
-      </property>
-      <property name="flat">
-       <bool>true</bool>
-      </property>
-     </widget>
      <widget class="QPushButton" name="btn_place_gate3_3">
       <property name="geometry">
        <rect>
-        <x>580</x>
-        <y>690</y>
+        <x>590</x>
+        <y>670</y>
         <width>86</width>
         <height>31</height>
        </rect>
       </property>
       <property name="font">
        <font>
+        <pointsize>15</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -10868,17 +10782,70 @@ QProgressBar::chunk {
        <bool>true</bool>
       </property>
      </widget>
-     <widget class="QPushButton" name="btn_place_gate1_3">
+     <widget class="QPushButton" name="btn_place_convenience_store_3">
       <property name="geometry">
        <rect>
-        <x>960</x>
-        <y>676</y>
+        <x>1070</x>
+        <y>480</y>
         <width>86</width>
         <height>31</height>
        </rect>
       </property>
       <property name="font">
        <font>
+        <pointsize>15</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>편의점</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_toilet_w_3">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>250</y>
+        <width>111</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>15</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>화장실 서편</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_gate1_3">
+      <property name="geometry">
+       <rect>
+        <x>990</x>
+        <y>640</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>15</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -10893,17 +10860,18 @@ QProgressBar::chunk {
        <bool>true</bool>
       </property>
      </widget>
-     <widget class="QPushButton" name="btn_place_shop_H_3">
+     <widget class="QPushButton" name="btn_place_shop_S_3">
       <property name="geometry">
        <rect>
-        <x>383</x>
-        <y>530</y>
-        <width>86</width>
-        <height>31</height>
+        <x>380</x>
+        <y>340</y>
+        <width>121</width>
+        <height>51</height>
        </rect>
       </property>
       <property name="font">
        <font>
+        <pointsize>15</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -10912,7 +10880,85 @@ QProgressBar::chunk {
        <string notr="true">background-color: #1976D2;</string>
       </property>
       <property name="text">
-       <string>현대 면세점</string>
+       <string>신세계 면세점</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_restaurant_C_3">
+      <property name="geometry">
+       <rect>
+        <x>200</x>
+        <y>630</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>15</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>중식당</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_gate2_3">
+      <property name="geometry">
+       <rect>
+        <x>910</x>
+        <y>390</y>
+        <width>86</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>15</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>게이트2</string>
+      </property>
+      <property name="flat">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_place_info_desk_3">
+      <property name="geometry">
+       <rect>
+        <x>870</x>
+        <y>517</y>
+        <width>111</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>15</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: #1976D2;</string>
+      </property>
+      <property name="text">
+       <string>안내 데스크</string>
       </property>
       <property name="flat">
        <bool>true</bool>
@@ -10921,14 +10967,15 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_shop_L_3">
       <property name="geometry">
        <rect>
-        <x>193</x>
+        <x>160</x>
         <y>430</y>
-        <width>86</width>
-        <height>31</height>
+        <width>111</width>
+        <height>41</height>
        </rect>
       </property>
       <property name="font">
        <font>
+        <pointsize>15</pointsize>
         <weight>75</weight>
         <bold>true</bold>
         <underline>false</underline>
@@ -10944,17 +10991,18 @@ QProgressBar::chunk {
        <bool>true</bool>
       </property>
      </widget>
-     <widget class="QPushButton" name="btn_place_toilet_w_3">
+     <widget class="QPushButton" name="btn_place_toilet_e_3">
       <property name="geometry">
        <rect>
-        <x>193</x>
-        <y>250</y>
-        <width>86</width>
+        <x>760</x>
+        <y>670</y>
+        <width>111</width>
         <height>31</height>
        </rect>
       </property>
       <property name="font">
        <font>
+        <pointsize>15</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -10963,7 +11011,7 @@ QProgressBar::chunk {
        <string notr="true">background-color: #1976D2;</string>
       </property>
       <property name="text">
-       <string>화장실 서편</string>
+       <string>화장실 동편</string>
       </property>
       <property name="flat">
        <bool>true</bool>
@@ -10972,14 +11020,15 @@ QProgressBar::chunk {
      <widget class="QPushButton" name="btn_place_cafe_3">
       <property name="geometry">
        <rect>
-        <x>690</x>
-        <y>540</y>
+        <x>711</x>
+        <y>518</y>
         <width>86</width>
         <height>31</height>
        </rect>
       </property>
       <property name="font">
        <font>
+        <pointsize>15</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -10994,32 +11043,8 @@ QProgressBar::chunk {
        <bool>true</bool>
       </property>
      </widget>
-     <widget class="QPushButton" name="btn_place_restaurant_C_3">
-      <property name="geometry">
-       <rect>
-        <x>193</x>
-        <y>630</y>
-        <width>86</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: #1976D2;</string>
-      </property>
-      <property name="text">
-       <string>중식당</string>
-      </property>
-      <property name="flat">
-       <bool>true</bool>
-      </property>
-     </widget>
      <zorder>label_background8</zorder>
+     <zorder>view_map8</zorder>
      <zorder>label_check_place_text8</zorder>
      <zorder>btn_home8</zorder>
      <zorder>weight_bar8</zorder>
@@ -11034,20 +11059,19 @@ QProgressBar::chunk {
      <zorder>label_time_icon8</zorder>
      <zorder>label_time_text8</zorder>
      <zorder>label_remained_time8</zorder>
-     <zorder>view_map8</zorder>
-     <zorder>btn_place_shop_S_3</zorder>
-     <zorder>btn_place_convenience_store_3</zorder>
-     <zorder>btn_place_restaurant_K_3</zorder>
-     <zorder>btn_place_info_desk_3</zorder>
-     <zorder>btn_place_gate2_3</zorder>
-     <zorder>btn_place_toilet_e_3</zorder>
-     <zorder>btn_place_gate3_3</zorder>
-     <zorder>btn_place_gate1_3</zorder>
      <zorder>btn_place_shop_H_3</zorder>
-     <zorder>btn_place_shop_L_3</zorder>
+     <zorder>btn_place_restaurant_K_3</zorder>
+     <zorder>btn_place_gate3_3</zorder>
+     <zorder>btn_place_convenience_store_3</zorder>
      <zorder>btn_place_toilet_w_3</zorder>
-     <zorder>btn_place_cafe_3</zorder>
+     <zorder>btn_place_gate1_3</zorder>
+     <zorder>btn_place_shop_S_3</zorder>
      <zorder>btn_place_restaurant_C_3</zorder>
+     <zorder>btn_place_gate2_3</zorder>
+     <zorder>btn_place_info_desk_3</zorder>
+     <zorder>btn_place_shop_L_3</zorder>
+     <zorder>btn_place_toilet_e_3</zorder>
+     <zorder>btn_place_cafe_3</zorder>
     </widget>
     <widget class="QWidget" name="page_decision_after_arrived">
      <widget class="QPushButton" name="btn_go_next_goal9">
