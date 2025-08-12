@@ -4,7 +4,7 @@ import threading
 import json
 import time
 from datetime import datetime
-
+import queue
 import multiprocessing
 from multiprocessing import Process, Queue, Manager, Value
 
@@ -33,81 +33,86 @@ admin_tcp_port = 12348
 
 
 
-admin_ip = '192.168.0.18'      # Admin PC IP
+admin_ip = '192.168.0.20'      # Admin PC IP
 admin_port = 23456             # Admin TCP 포트
 
 user_ip = '192.168.0.30'       # User PC IP
 user_port = 23457              # User TCP 포트
 
-main_udp_ip = '192.168.0.100'  # 메인 컨트롤러 IP
+main_udp_ip = '192.168.5.9'  # 메인 컨트롤러 IP
 main_udp_port = 23458          # 메인 컨트롤러 포트
 
-llm_tcp_ip = "192.168.0.33"    # Chat Service IP
+llm_tcp_ip = "192.168.0.43"    # Chat Service IP
 llm_port = 23459               # Chat Service TCP 포트
 
 
     
 # TCP 데이터 수신
-def start_vision_tcp_server(tcp_ip, vision_tcp_port, running, vision_data_queue):
+def start_vision_tcp_server(tcp_ip, vision_tcp_port, running, vision_data_queue, distance_queue):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
         server.bind((tcp_ip, vision_tcp_port))
         server.listen()
-        print(f"[Vision TCP] Listening on {tcp_ip}:{vision_tcp_port}")
+        print(f"[VISION SERVICE TCP] Listening on {tcp_ip}:{vision_tcp_port}")
 
         while running.value:
             conn, addr = server.accept()
-            threading.Thread(target=vision_tcp_receiver, args=(conn, addr, vision_data_queue), daemon=True).start()
+            threading.Thread(target=vision_tcp_receiver, args=(conn, addr, vision_data_queue, distance_queue), daemon=True).start()
 
-def vision_tcp_receiver(conn, addr, vision_data_queue):
-    print(f"[Vision] Connected from {addr}")
+def vision_tcp_receiver(conn, addr, vision_data_queue, distance_queue):
+    print(f"[VISION SERVICE] Connected from {addr}")
     try:
-        # 1) Read exactly 1 byte for the header
-        header = conn.recv(1)
-        
-        if header == b'\x00':
-            print(f"header received: {header}")
-        else:
-            print(f"{header} received: pass")
-
-        
-        # 2) Read exactly 4 bytes for the length
-        length_bytes = conn.recv(4)
-        if len(length_bytes) < 4:
-            print("[VISION] Connection closed before length received")
-            return
-
-        # Unpack as unsigned int, big-endian
-        (length,) = struct.unpack('>I', length_bytes)
-        # e.g. length = 1234
-
-        # 3) Read exactly `length` bytes
-        data = b''
-        remaining = length
-        while remaining > 0:
-            packet = conn.recv(remaining)
-            if not packet:
-                print(f"[VISION] Connection closed with {remaining} bytes left to read")
+        while True:
+            # 1) Read exactly 1 byte for the header
+            header = conn.recv(1)
+            
+            if header != b'\x00':
+                print(f"[VISION SERVICE] Invalid header: {header}")
                 return
-            data += packet
-            remaining -= len(packet)
+            # print(f"[VISION SERVICE] Header OK: {header.hex()}")
 
-        # 4) Decode and enqueue
-        json_data = json.loads(data.decode('utf-8'))
-        print(f"[VISION] Data: {json_data}")
+            
+            # 2) Read exactly 4 bytes for the length
+            length_bytes = conn.recv(4)
+            if len(length_bytes) < 4:
+                print("[VISION SERVICE] Connection closed before length received")
+                return
 
-        vision_data_queue.put(data)
+            # Unpack as unsigned int, big-endian
+            (length,) = struct.unpack('>I', length_bytes)
+            # e.g. length = 1234
+
+            # 3) Read exactly `length` bytes
+            data = b''
+            remaining = length
+            while remaining > 0:
+                packet = conn.recv(remaining)
+                if not packet:
+                    print(f"[VISION SERVICE] Connection closed with {remaining} bytes left to read")
+                    return
+                data += packet
+                remaining -= len(packet)
+
+            # 4) Decode and enqueue
+            json_data = json.loads(data.decode('utf-8'))
+            # print(f"[VISION SERVICE] Data: {json_data}")
+            distance = json_data.get("distance")
+
+            distance_queue.put(distance)
+
+            vision_data_queue.put(data)
 
     except Exception as e:
-        print(f"[VISION ERROR] {e}")
-
+        print(f"[VISION SERVICE ERROR] {e}")
     finally:
         conn.close()
+        print(f"[VISION SERVICE] Connection closed from {addr}")
+
 
 def start_llm_tcp_server(tcp_ip, llm_tcp_port, running, llm_data_queue, pos_queue):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
         server.bind((tcp_ip, llm_tcp_port))
         server.listen()
-        print(f"[LLM TCP] Listening on {tcp_ip}:{llm_tcp_port}")
+        print(f"[CHAT SERVICE TCP] Listening on {tcp_ip}:{llm_tcp_port}")
 
         while running.value:
             conn, addr = server.accept()
@@ -115,171 +120,194 @@ def start_llm_tcp_server(tcp_ip, llm_tcp_port, running, llm_data_queue, pos_queu
 
 
 def llm_tcp_receiver(conn, addr, llm_data_queue, pos_queue):
-    print(f"[LLM] Connected from {addr}")
+    # print(f"[CHAT SERVICE] Connected from {addr}")
     try:
-        # 1) Read exactly 1 byte for the header
-        header = conn.recv(1)
-        
-        if header == b'\x00':
-            print(f"header received: {header}")
-        else:
-            print(f"{header} received: pass")
+        # 위치 전송 스레드 시작
+        pos_thread = threading.Thread(target=send_pos_loop, args=(pos_queue,), daemon=True)
+        pos_thread.start()
 
-        
-        # 2) Read exactly 4 bytes for the length
-        length_bytes = conn.recv(4)
-        if len(length_bytes) < 4:
-            print("[LLM] Connection closed before length received")
-            return
-
-        # Unpack as unsigned int, big-endian
-        (length,) = struct.unpack('>I', length_bytes)
-        # e.g. length = 1234
-
-        # 3) Read exactly `length` bytes
-        data = b''
-        remaining = length
-        while remaining > 0:
-            packet = conn.recv(remaining)
-            if not packet:
-                print(f"[LLM] Connection closed with {remaining} bytes left to read")
+        while True:
+            # 1) Header
+            header = conn.recv(1)
+            if header != b'\x00':
+                # print(f"[CHAT SERVICE] Invalid header: {header}")
                 return
-            data += packet
-            remaining -= len(packet)
+            # print(f"[CHAT SERVICE] Header OK: {header.hex()}")
 
-        # 4) Decode and enqueue
-        json_data = data.decode('utf-8')
-        print(f"[LLM] Data: {json_data}")
-        llm_data_queue.put(data)
-
-
-        current_pos = pos_queue.get()
-        print(f"[LLM] Current Position: {current_pos}")
-
-        current_pos_bytes = json.dumps(current_pos).encode('utf-8')
-        send_pos_to_llm(current_pos_bytes)
-
-    except Exception as e:
-        print(f"[LLM ERROR] {e}")
-    finally:
-        conn.close()
-
-def send_pos_to_llm(current_pos_bytes):
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            for _ in range(5):
-                try:
-                    sock.connect((llm_tcp_ip, llm_tcp_port))
-                    break
-                except (ConnectionRefusedError, OSError) as e:
-                    print(f"[LLM TCP] Retry connection... {e}")
-                    time.sleep(2)
-            else:
-                print("[LLM TCP] Failed to connect to LLM after retries")
+            # 2) Length
+            length_bytes = conn.recv(4)
+            if len(length_bytes) < 4:
+                print("[CHAT SERVICE] Connection closed before length received")
                 return
+            (length,) = struct.unpack('>I', length_bytes)
 
-            header = b'\x00'
-            length_bytes = struct.pack('>I', len(current_pos_bytes))
-            packet = header + length_bytes + current_pos_bytes
-            sock.sendall(packet)
-
-    except Exception as e:
-        print(f"[LLM TCP SEND ERROR] {e}")
-
-
-def start_user_tcp_server(tcp_ip, user_tcp_port, running, vision_data_queue, robot_id_queue, already_checked):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
-        server.bind((tcp_ip, user_tcp_port))
-        server.listen()
-        print(f"[User TCP] Listening on {tcp_ip}:{user_tcp_port}")
-
-        while running.value:
-            conn, addr = server.accept()
-            threading.Thread(target=user_tcp_receiver, args=(conn, addr, vision_data_queue, robot_id_queue, already_checked), daemon=True).start()
-
-def user_tcp_receiver(conn, addr, vision_data_queue, robot_id_queue, already_checked):
-    print(f"[USER] Connected from {addr}")
-    try:
-        arcs_db = ARCSDatabaseHandler()
-        # 1. Header (1 byte)
-        header = conn.recv(1)
-        if header != b'\x00':
-            print(f"[USER] Invalid header: {header}")
-            return
-        print(f"[USER] Header OK: {header.hex()}")
-
-        # 2. Length (4 bytes)
-        length_bytes = conn.recv(4)
-        if len(length_bytes) < 4:
-            print("[USER] Incomplete length received")
-            return
-        (length,) = struct.unpack('>I', length_bytes)
-        print(f"[USER] Payload length: {length}")
-
-        # 3. Command (2 bytes)
-        command_raw = conn.recv(2)
-        if len(command_raw) < 2:
-            print("[USER] Incomplete command received")
-            return
-        command = command_raw.decode('ascii')
-        print(f"[USER] Command: {command}")
-
-        # 4. Payload (length bytes)
-        if length > 0:
+            # 3) Payload
             data = b''
             remaining = length
             while remaining > 0:
                 packet = conn.recv(remaining)
                 if not packet:
-                    print(f"[USER] Connection closed early, {remaining} bytes left")
+                    print(f"[CHAT SERVICE] Connection closed with {remaining} bytes left")
                     return
                 data += packet
                 remaining -= len(packet)
 
-            # 5. Decode JSON
-            payload = json.loads(data.decode('utf-8'))
-            print(f"[USER] Payload: {payload}")
-            
-        else:
-            payload = {}
-
-        # 즉시 메인 컨트롤러에 커맨드 전달
-        des_coor_list = payload.get("des_coor")
-        vision_data = vision_data_queue.get() if not vision_data_queue.empty() else None
-
-        send_to_main_controller_udp(command, des_coor_list, vision_data)
-
-        user_info = payload.get("user_info")
-        robot_id = user_info["robot_id"]
-
-        robot_id_queue.put(robot_id)
-
-        if user_info:
-            arcs_db.save_user(user_info)
-
-        # CK, LD, FW, RT, PS, FR, ED, KG, AR
-        if command in ("LD", "ED"):
-            arcs_db.replace_routes(robot_id, des_coor_list)
-        elif command == "AR":
-            pos_x = des_coor_list[0]
-            pos_y = des_coor_list[1]
-            arcs_db.increment_place_visitor(pos_x, pos_y)
-
-
-        now = datetime.now()
-
-        if now.hour == 0 and now.minute == 0 and not already_checked.value:
-            arcs_db.reset_place_visitor_and_total()
-            already_checked.value = True
-
-        if now.hour == 0 and now.minute == 1:
-            already_checked.value = False
-
+            # 4) Decode and enqueue
+            json_data = data.decode('utf-8')
+            print(f"[CHAT SERVICE] Data: {json_data}")
+            llm_data_queue.put(data)
 
     except Exception as e:
-        print(f"[USER ERROR] {e}")
+        print(f"[CHAT SERVICE ERROR] {e}")
     finally:
         conn.close()
+        # print(f"[CHAT SERVICE] Connection closed from {addr}")
+
+def send_pos_loop(pos_queue):
+    sock = None
+
+    while True:
+        try:
+            # 연결이 안 돼있으면 연결 시도
+            if sock is None:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.connect((llm_tcp_ip, llm_port))
+                # print("[CHAT SERVICE TCP] Connected to LLM (persistent)")
+
+            # 위치 전송
+            if not pos_queue.empty():
+                current_pos = pos_queue.get()
+                # print(f"[CHAT SERVICE] Current Position: {current_pos}")
+                current_pos_bytes = json.dumps(current_pos).encode('utf-8')
+
+                header = b'\x00'
+                length_bytes = struct.pack('>I', len(current_pos_bytes))
+                packet = header + length_bytes + current_pos_bytes
+                sock.sendall(packet)
+                print(f"[CHAT SERVICE TCP] Sent position: {packet}")
+                time.sleep(2)
+
+        except (BrokenPipeError, ConnectionResetError, OSError) as e:
+            # print(f"[CHAT SERVICE TCP] Connection lost: {e}, retrying...")
+            if sock:
+                try:
+                    sock.close()
+                except:
+                    pass
+            sock = None  # 다음 루프에서 재연결
+            time.sleep(1)
+
+
+def start_user_tcp_server(tcp_ip, user_tcp_port, running, vision_data_queue, robot_id_queue, already_checked):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
+        server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        server.bind((tcp_ip, user_tcp_port))
+        server.listen()
+        print(f"[User TCP] Listening on {tcp_ip}:{user_tcp_port}")
+
+        while running.value:
+            print("[SERVER] 대기 중: accepting connection...")
+            conn, addr = server.accept()
+            print(f"[SERVER] 새 연결 수신: {addr}")
+            threading.Thread(target=user_tcp_receiver, args=(conn, addr, vision_data_queue, robot_id_queue, already_checked), daemon=True).start()
+
+def user_tcp_receiver(conn, addr, vision_data_queue, robot_id_queue, already_checked):
+    print(f"[USER] Connected from {addr}")
+    try:
+        # arcs_db = ARCSDatabaseHandler()
+
+        try:
+            while True:
+                # 1. Header (1 byte)
+                header = conn.recv(1)
+                if header != b'\x00':
+                    # print(f"[USER] Invalid header: {header}")
+                    return
+                print(f"[USER] Header OK: {header.hex()}")
+
+                # 2. Length (4 bytes)
+                length_bytes = conn.recv(4)
+                if len(length_bytes) < 4:
+                    print("[USER] Incomplete length received")
+                    return
+                (length,) = struct.unpack('>I', length_bytes)
+                print(f"[USER] Payload length: {length}")
+
+                # 3. Command (2 bytes)
+                command_raw = conn.recv(2)
+                if len(command_raw) < 2:
+                    print("[USER] Incomplete command received")
+                    return
+                command = command_raw.decode('ascii')
+                print(f"[USER] Command: {command}")
+
+                # 4. Payload (length bytes)
+                if length > 0:
+                    data = b''
+                    remaining = length
+                    while remaining > 0:
+                        packet = conn.recv(remaining)
+
+                        if not packet:
+                            print(f"[USER] Connection closed early, {remaining} bytes left")
+                            return
+                        data += packet
+                        remaining -= len(packet)
+
+                    # 5. Decode JSON
+                    payload = json.loads(data.decode('utf-8'))
+                    print(f"[USER] Payload: {payload}")
+                    
+                else:
+                    payload = {}
+
+                # 즉시 메인 컨트롤러에 커맨드 전달
+                des_coor_list = payload.get("des_coor")
+                try:
+                    vision_data = vision_data_queue.get_nowait()
+                except queue.Empty:
+                    vision_data = None
+
+                send_to_main_controller_udp(command, des_coor_list, vision_data)
+
+                user_info = payload.get("user_info")
+                robot_id = payload.get("robot_id")
+
+                robot_id_queue.put(robot_id)
+
+                if user_info is not None:
+                    user_info["robot_id"] = robot_id
+                    # arcs_db.save_user(user_info)
+
+                # CK, LD, FW, RT, PS, FR, ED, KG, AR
+                if command in ("LD", "ED"):
+                    try:
+                        # arcs_db.replace_routes(robot_id, des_coor_list)
+                        pass
+                    except Exception as e:
+                        print(f"[USER][DB ERROR] replace_routes 실패: {e}")
+                    pass
+                elif command == "AR":
+                    pos_x = des_coor_list[0]
+                    pos_y = des_coor_list[1]
+                    # arcs_db.increment_place_visitor(pos_x, pos_y)
+
+
+                now = datetime.now()
+
+                if now.hour == 0 and now.minute == 0 and not already_checked.value:
+                    # arcs_db.reset_place_visitor_and_total()
+                    already_checked.value = True
+
+                if now.hour == 0 and now.minute == 1:
+                    already_checked.value = False
+
+
+        except Exception as e:
+            print(f"[USER ERROR] {e}")
+    except KeyboardInterrupt:
+        conn.close()
+        print(f"[USER] Connection closed from {addr}")
 
 # 커맨드 핸들러 함수 작성
 # following, leading, pausing, waiting
@@ -322,94 +350,127 @@ def send_to_main_controller_udp(command, des_coor_list, vision_data):
         # UDP 전송
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
             sock.sendto(full_msg, (main_udp_ip, main_udp_port))
-            print(f"[UDP SEND] {command} sent with {len(des_coor_list)} des_coor points")
+            if des_coor_list is not None:
+                print(f"[UDP SEND] {command} sent with {len(des_coor_list)} des_coor points")
+            else:
+                print(f"[UDP SEND] {command} sent with no destination coordinates")
 
     except Exception as e:
         print(f"[UDP SEND ERROR] {e}")
 
 def start_main_controller_udp_server(udp_ip, udp_port, running, main_ctrl_data_queue, pos_queue, admin_pos_queue, user_data_queue):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as server:
         server.bind((udp_ip, udp_port))
-        server.listen()
-        print(f"[LLM TCP] Listening on {udp_ip}:{udp_port}")
+        print(f"[MAIN CONTROLLER] Listening on {udp_ip}:{udp_port}")
 
         while running.value:
-            conn, addr = server.accept()
-            threading.Thread(target=main_controller_udp_receiver, args=(conn, addr, main_ctrl_data_queue, pos_queue, admin_pos_queue, user_data_queue), daemon=True).start()
+            data, addr = server.recvfrom(65507)  # Buffer size of 4096 bytes
+            threading.Thread(target=main_controller_udp_receiver, args=(data, addr, main_ctrl_data_queue, pos_queue, admin_pos_queue, user_data_queue), daemon=True).start()
 
-def main_controller_udp_receiver(conn, addr, main_ctrl_data_queue, pos_queue, admin_pos_queue, user_data_queue):
-    print(f"[MAIN CONTROLLER] Connected from {addr}")
+def main_controller_udp_receiver(data, addr, main_ctrl_data_queue, pos_queue, admin_pos_queue, user_data_queue):
+    # print(f"[MAIN CONTROLLER - UDP] Packet received from {addr}")
+
     try:
-        arcs_db = ARCSDatabaseHandler()
-        # 1) Read exactly 1 byte for the header
-        header = conn.recv(1)
-        
-        if header == b'\x00':
-            print(f"header received: {header}")
-        else:
-            print(f"{header} received: pass")
-
-        
-        # 2) Read exactly 4 bytes for the length
-        length_bytes = conn.recv(4)
-        if len(length_bytes) < 4:
-            print("[MAIN CONTROLLER] Connection closed before length received")
+        # 1) 첫 1바이트 헤더 검사
+        header = data[0:1]
+        if header != b'\x00':
+            print(f"[MAIN CONTROLLER] Invalid header: {header}")
             return
+        # print(f"[CONTROLLER] Header OK: {header.hex()}")
 
-        # Unpack as unsigned int, big-endian
-        (length,) = struct.unpack('>I', length_bytes)
-        # e.g. length = 1234
+        # 2) 길이
+        length = struct.unpack('>I', data[1:5])[0]
 
-        # 3) Read exactly 2 bytes for the command
-        command_bytes = conn.recv(2)
-        command = command_bytes.decode('ascii')
-        print(f"[MAIN CONTROLLER] Command: {command}")
+        # 3) 명령어 (2바이트)
+        command = data[5:7].decode('ascii')
+        # print(f"[MAIN CONTROLLER] Command: {command}")
 
-
-        # 4) Read exactly `length` bytes
-        if length > 0:
-            data = b''
-            remaining = length
-            while remaining > 0:
-                packet = conn.recv(remaining)
-                if not packet:
-                    print(f"[MAIN CONTROLLER] Connection closed with {remaining} bytes left to read")
-                    return
-                data += packet
-                remaining -= len(packet)
-
+        # 4) payload
+        payload = data[7:7+length]
 
         if command == "MV":
-            main_ctrl_data_queue.put(data)
-        
+            main_ctrl_data_queue.put(payload)
         elif command == "AR":
-            user_data_queue.put(data)
-
+            user_data_queue.put(payload)
         else:
-            print(f"[USER] Unknown command received: {command}")
+            print(f"[MAIN CONTROLLER] Unknown command received: {command}")
 
-        # 4) Decode and enqueue
-        json_data = json.loads(data.decode('utf-8'))
+        json_data = json.loads(payload.decode('utf-8'))
         print(f"[MAIN CONTROLLER] Json Data: {json_data}")
 
         current_position = json_data.get("current_position")
-        
+        # print(f"[MAIN CONTROLLER] Current Position: {current_position}")
         pos_queue.put(current_position)
         admin_pos_queue.put(current_position)
 
         loading_data = json_data.get("loadcell")
-        loading = 1 if loading_data > 0 else 0
+        if loading_data is None:
+            loading = 0
+        else:
+            loading_data = int(loading_data)
+            loading = 1 if loading_data > 0 else 0
         battery = 80
         robot_id = json_data.get("robot_id")
 
-        arcs_db.update_arcs_position(robot_id, loading, current_position[0], current_position[1], battery)
+        # arcs_db = ARCSDatabaseHandler()
+        # arcs_db.update_arcs_position(robot_id, loading, current_position[0], current_position[1], battery)
 
     except Exception as e:
-        print(f"[MAIN CONTROLLER ERROR] {e}")
-    finally:
-        conn.close()
+        # print(f"[MAIN CONTROLLER - UDP ERROR] {e}")
+        pass
+
+
+# --- add near top ---
+class AdminSocket:
+    def __init__(self, host, port):
+        self.host, self.port = host, port
+        self.sock = None
+        self.lock = threading.Lock()
+
+    def ensure_connected(self):
+        while self.sock is None:
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.connect((self.host, self.port))
+                self.sock = s
+                print("[AdminSock] Connected")
+            except Exception as e:
+                # print(f"[AdminSock] Reconnect in 1s: {e}")
+                time.sleep(1)
+
+    def send_packet(self, command:str, payload_bytes:bytes):
+        # 공통 프레이밍: header(1) + length(4) + command(2) + payload
+        header = b'\x00'
+        length_bytes = struct.pack('>I', len(payload_bytes))
+        cmd_bytes = struct.pack('>2s', command.encode('ascii'))
+        packet = header + length_bytes + cmd_bytes + payload_bytes
+        with self.lock:
+            self.ensure_connected()
+            try:
+                self.sock.sendall(packet)
+                print(f"[AdminSock] Packet sent: {packet}")
+            except Exception as e:
+                print(f"[AdminSock] send failed, retry: {e}")
+                try:
+                    self.sock.close()
+                except:
+                    pass
+                self.sock = None
+                # 1회 재시도
+                self.ensure_connected()
+                self.sock.sendall(packet)
+
+
 
 def start_admin_tcp_server(tcp_ip, admin_tcp_port, running, admin_pos_queue, robot_id_queue):
+    admin_sock = AdminSocket(admin_ip, admin_port)
+    # ★ CP 송신 스레드: accept 루프 바깥에서 1회만 시작
+    threading.Thread(
+        target=cp_sender_thread,
+        args=(admin_sock, admin_pos_queue, robot_id_queue, running),
+        daemon=True
+    ).start()
+
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
         server.bind((tcp_ip, admin_tcp_port))
         server.listen()
@@ -417,236 +478,180 @@ def start_admin_tcp_server(tcp_ip, admin_tcp_port, running, admin_pos_queue, rob
 
         while running.value:
             conn, addr = server.accept()
-            threading.Thread(target=admin_tcp_receiver, args=(conn, addr, admin_ip, admin_port, admin_pos_queue, robot_id_queue), daemon=True).start()
+            threading.Thread(
+                target=admin_tcp_receiver,
+                args=(conn, addr, admin_sock, admin_pos_queue, robot_id_queue, running),
+                daemon=True
+            ).start()
 
-def admin_tcp_receiver(conn, addr, admin_ip, admin_port, admin_pos_queue, robot_id_queue):
+
+def admin_tcp_receiver(conn, addr, admin_sock, admin_pos_queue, robot_id_queue, running):
     print(f"[Admin] Connected from {addr}")
     try:
-        # 1. Header (1 byte)
-        header = conn.recv(1)
-        if header != b'\x00':
-            print(f"[USER] Invalid header: {header}")
-            return
-        print(f"[USER] Header OK: {header.hex()}")
+        while True:
+            header = conn.recv(1)
+            if header != b'\x00':
+                print(f"[ADMIN] Invalid header: {header}")
+                return
 
-        # 2. Length (4 bytes)
-        length_bytes = conn.recv(4)
-        if len(length_bytes) < 4:
-            print("[USER] Incomplete length received")
-            return
-        (length,) = struct.unpack('>I', length_bytes)
-        print(f"[USER] Payload length: {length}")
+            length_bytes = conn.recv(4)
+            if len(length_bytes) < 4:
+                print("[ADMIN] Incomplete length received")
+                return
+            (length,) = struct.unpack('>I', length_bytes)
 
-        # 3. Command (2 bytes)
-        command_raw = conn.recv(2)
-        if len(command_raw) < 2:
-            print("[USER] Incomplete command received")
-            return
-        command = command_raw.decode('ascii')
-        print(f"[USER] Command: {command}")
+            command_raw = conn.recv(2)
+            if len(command_raw) < 2:
+                print("[ADMIN] Incomplete command received")
+                return
+            command = command_raw.decode('ascii')
+            print(f"[ADMIN] Command: {command}")
 
-        # 4. Payload (length bytes)
-        if length > 0:
-            data = b''
-            remaining = length
-            while remaining > 0:
-                packet = conn.recv(remaining)
-                if not packet:
-                    print(f"[USER] Connection closed early, {remaining} bytes left")
-                    return
-                data += packet
-                remaining -= len(packet)
+            if length > 0:
+                data = b''
+                remaining = length
+                while remaining > 0:
+                    packet = conn.recv(remaining)
+                    if not packet:
+                        print(f"[ADMIN] Connection closed early, {remaining} bytes left")
+                        return
+                    data += packet
+                    remaining -= len(packet)
+                json_data = json.loads(data.decode('utf-8'))
+            else:
+                json_data = None
 
-            json_data = json.loads(data.decode('utf-8'))
-            print(f"[Admin] Login info: {json_data}")
-            
-        data_to_admin_pc(admin_ip, admin_port, command, json_data, admin_pos_queue, robot_id_queue)
-
-        
-
+            if command:
+                # ★ 호출 인자 통일(정의와 동일하게 3개만)
+                data_to_admin_pc(admin_sock, command, json_data)
     except Exception as e:
         print(f"[Admin ERROR] {e}")
     finally:
         conn.close()
+        print(f"[Admin] Connection closed from {addr}")
 
 
-# Admin PC로 데이터 전송
-def data_to_admin_pc(admin_ip, admin_port, command, json_data, admin_pos_queue, robot_id_queue):
+def cp_sender_thread(admin_sock, admin_pos_queue, robot_id_queue, running):
+    last_robot_id = 1  # 기본값
+    while running.value:
+        try:
+            # ★ robot_id 안전 획득
+            try:
+                last_robot_id = robot_id_queue.get_nowait()
+            except queue.Empty:
+                pass
+
+            if not admin_pos_queue.empty():
+                current_position = admin_pos_queue.get()
+                payload_dict = {"robot_id": last_robot_id, "current_position": current_position}
+                payload_bytes = json.dumps(payload_dict).encode('utf-8')
+                admin_sock.send_packet("CP", payload_bytes)
+                print("[Admin CP Sender] CP sent")
+        except Exception as e:
+            print(f"[Admin CP Sender ERROR] {e}")
+        finally:
+            # ★ 무조건 슬립해 CPU 스핀 방지
+            time.sleep(2)
+
+
+def data_to_admin_pc(admin_sock, command, json_data):
     try:
         arcs_db = ARCSDatabaseHandler()
 
-        admin_conn = None
-        while admin_conn is None and running.value:
-            try:
-                admin_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                admin_conn.connect((admin_ip, admin_port))
-                print("[Admin] Connected to Admin PC")
-            except (ConnectionRefusedError, OSError) as e:
-                print(f"[Admin] Waiting for Admin PC... {e}")
-                admin_conn = None
-                time.sleep(2)
-
-
-        header = b'\x00'
-        login_success = b'\x01'
-        login_fail = b'\x00'
-
-        cp_command = "CP"
-
-        if not robot_id_queue.empty():
-            robot_id = robot_id_queue.get()
-        else:
-            robot_id = None
-
-
-        
-        if not admin_pos_queue.empty():
-            current_position = admin_pos_queue.get()
-
-            payload_dict = {
-                "robot_id": robot_id,
-                "current_position": current_position
-            }
-
-            cp_json_bytes = json.dumps(payload_dict).encode('utf-8')
-            cp_length_bytes = struct.pack('>I', len(cp_json_bytes))
-            cp_command_bytes = struct.pack('>2s', cp_command.encode('ascii'))
-
-            cp_packet = header + cp_length_bytes + cp_command_bytes + cp_json_bytes
-            admin_conn.sendall(cp_packet)
-
-
         if command == "LG":
-            # db 검증 수행 후 success or fail
-            login = arcs_db.verify_admin_login(json_data["id"], json_data["password"])
-
-            lg_length_bytes = struct.pack('>I', 1)
-            lg_command_bytes = struct.pack('>2s', command.encode('ascii'))
-
-            if login == "Login success":
-                lg_packet = header + lg_length_bytes + lg_command_bytes + login_success
-                admin_conn.sendall(lg_packet)
-            else:
-                lg_packet = header + lg_length_bytes + lg_command_bytes + login_fail
-                admin_conn.sendall(lg_packet)
+            ok = arcs_db.verify_admin_login(json_data["id"], json_data["password"])
+            payload = b'\x01' if ok else b'\x00'
+            admin_sock.send_packet("LG", payload)
+            print(f"[Admin] Login {'success' if ok else 'fail'} for {json_data['id']}")
 
         elif command == "RS":
-            arcs_list = arcs_db.get_arcs()
-
-            # user, task, loading, using, battery, pos_x, pos_y, status_time
-            
-            rs_json_bytes = json.dumps(arcs_list).encode('utf-8')
-            rs_length_bytes = struct.pack('>I', len(rs_json_bytes))
-            rs_command_bytes = struct.pack('>2s', command.encode('ascii'))
-
-            rs_packet = header + rs_length_bytes + rs_command_bytes + rs_json_bytes
-            admin_conn.sendall(rs_packet)
+            robot_id = json_data.get("robot_id")
+            arcs_list = [] if robot_id in (2,3,4,5,6) else arcs_db.get_arcs(robot_id)
+            admin_sock.send_packet("RS", json.dumps(arcs_list).encode('utf-8'))
+            print("[Admin] RS sent")
 
         elif command == "UI":
-            # robot_id, name, ticket, created
             robot_id = json_data.get("robot_id")
             user_name = json_data.get("name")
             ticket = json_data.get("ticket")
             created = json_data.get("created")
-
-
-            user_info = arcs_db.get_users(robot_id, user_name, ticket, created)
-
-            
-
-            # name, ticket, boarding, departure, gate, sex, age, seat, from, to
-            ui_json_bytes = json.dumps(user_info).encode('utf-8')
-            ui_length_bytes = struct.pack('>I', len(ui_json_bytes))
-            ui_command_bytes = struct.pack('>2s', command.encode('ascii'))
-
-            ui_packet = header + ui_length_bytes + ui_command_bytes + ui_json_bytes
-            admin_conn.sendall(ui_packet)
-        
-
+            user_infos = arcs_db.get_users(robot_id, user_name, ticket, created)
+            for u in user_infos:
+                if "created" in u and u["created"] is not None:
+                    u["created"] = u["created"].strftime("%Y-%m-%d %H:%M:%S")
+            admin_sock.send_packet("UI", json.dumps(user_infos).encode('utf-8'))
+            print("[Admin] UI sent")
     except Exception as e:
         print(f"[Admin ERROR] {e}")
-        if admin_conn:
-            admin_conn.close()
-            admin_conn = None
-        time.sleep(1)
             
 
 # User PC로 데이터 전송
-def data_to_user_pc(user_ip, user_port, running, main_ctrl_data_queue, llm_data_queue, user_data_queue):
-
+def data_to_user_pc(user_ip, user_port, running, main_ctrl_data_queue, llm_data_queue, user_data_queue, distance_queue):
     user_conn = None
-
-    while user_conn is None and running.value:
-        try:
-            user_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            user_conn.connect((user_ip, user_port))
-            print("[User] Connected to User PC")
-        except (ConnectionRefusedError, OSError) as e:
-            print(f"[User] Waiting for User PC... {e}")
-            user_conn = None
-            time.sleep(2)  # 2초 후 재시도
-    
     while running.value:
+        # 1. 연결이 끊겨 있으면 재연결 시도
+        if user_conn is None:
+            # print("[User] Attempting to connect to User PC...")
+            try:
+                user_conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                user_conn.connect((user_ip, user_port))
+                print("[User] Connected to User PC")
+            except (ConnectionRefusedError, OSError) as e:
+                # print(f"[User] Waiting to reconnect to User PC... {e}")
+                user_conn = None
+                time.sleep(2)
+                continue  # 재시도
+        
+        # 2. 연결된 경우 데이터 전송
         try:
             header = b'\x00'
             oo_command = "OO"
             xx_command = "XX"
 
+            # 3. 거리 데이터 처리
+            if not distance_queue.empty():
+                distance = distance_queue.get() if not distance_queue.empty() else 0
+                # print(f"[User] Distance from queue: {distance}")
             if not main_ctrl_data_queue.empty():
-                oo_json_bytes = main_ctrl_data_queue.get()
+                raw_oo_json_bytes = main_ctrl_data_queue.get()
+                oo_json_data = json.loads(raw_oo_json_bytes.decode('utf-8'))
+                print(f"[User] OO Data: {oo_json_data}")
+                oo_json_data["distance"] = 0 if distance <= 1.5 else 1  
+                dist_state = oo_json_data["distance"] = 0 if distance <= 1.5 else 1 # distance가 1.5 이하이면 0, 아니면 1로 설정
+                print(f"[User] distance: {distance}, distance_state: {dist_state}")  # 디버깅용 출력
+                oo_json_bytes = json.dumps(oo_json_data).encode('utf-8')
 
-                # Header + Length(4바이트) + Payload
-                oo_length_bytes = struct.pack('>I', len(oo_json_bytes))  # Big-endian 4바이트 정수
-                oo_command_bytes = struct.pack('>2s', oo_command.encode('ascii')) # command를 ASCII 2바이트로 패킹
-            
+                oo_length_bytes = struct.pack('>I', len(oo_json_bytes))
+                oo_command_bytes = struct.pack('>2s', oo_command.encode('ascii'))
                 oo_packet = header + oo_length_bytes + oo_command_bytes + oo_json_bytes
 
                 user_conn.sendall(oo_packet)
 
             if not llm_data_queue.empty():
                 xx_json_bytes = llm_data_queue.get()
-
-                # Header + Length(4바이트) + Payload
-                xx_length_bytes = struct.pack('>I', len(xx_json_bytes))  # Big-endian 4바이트 정수
-                xx_command_bytes = struct.pack('>2s', xx_command.encode('ascii')) # command를 ASCII 2바이트로 패킹
-            
+                xx_length_bytes = struct.pack('>I', len(xx_json_bytes))
+                xx_command_bytes = struct.pack('>2s', xx_command.encode('ascii'))
                 xx_packet = header + xx_length_bytes + xx_command_bytes + xx_json_bytes
-
                 user_conn.sendall(xx_packet)
 
             if not user_data_queue.empty():
                 command = "AR"
                 json_bytes = user_data_queue.get()
-
-                # Header + Length(4바이트) + Payload
-                length_bytes = struct.pack('>I', len(json_bytes))  # Big-endian 4바이트 정수
-                command_bytes = struct.pack('>2s', command.encode('ascii')) # command를 ASCII 2바이트로 패킹
-            
-                packet = header + length_bytes + command_bytes + json_bytes
-
-                user_conn.sendall(packet)
-
-            else:
-                dummy_com = "AR"
-                dummy_json = {
-                    "des_coor": (123, 123)
-                }
-                json_bytes = json.dumps(dummy_json).encode('utf-8')
                 length_bytes = struct.pack('>I', len(json_bytes))
-                command_bytes = struct.pack('>2s', dummy_com.encode('ascii'))
-
+                command_bytes = struct.pack('>2s', command.encode('ascii'))
                 packet = header + length_bytes + command_bytes + json_bytes
-
                 user_conn.sendall(packet)
-                time.sleep(1)
 
-            
+            if (main_ctrl_data_queue.empty() and llm_data_queue.empty() and user_data_queue.empty()):
+                user_conn.sendall(b'')   # ← 여기서 끊김 감지
+                
+
         except Exception as e:
             print(f"[User ERROR] {e}")
-            if user_conn:
-                user_conn.close()
-                user_conn = None
-            time.sleep(1)
+            try: user_conn.close()
+            except: pass
+            user_conn = None  # 연결 끊김 표시
+            continue  # 재시도
 
 
 if __name__ == "__main__":
@@ -668,13 +673,14 @@ if __name__ == "__main__":
     admin_pos_queue = Queue()
 
     robot_id_queue = Queue()
+    distance_queue = Queue()
 
-    p1 = Process(target=start_vision_tcp_server, args=(tcp_ip, vision_tcp_port, running, vision_data_queue))
+    p1 = Process(target=start_vision_tcp_server, args=(tcp_ip, vision_tcp_port, running, vision_data_queue, distance_queue))
     p2 = Process(target=start_llm_tcp_server, args=(tcp_ip, llm_tcp_port, running, llm_data_queue, pos_queue))
     p3 = Process(target=start_user_tcp_server, args=(tcp_ip, user_tcp_port, running, vision_data_queue, robot_id_queue, already_checked))
     p4 = Process(target=start_admin_tcp_server, args=(tcp_ip, admin_tcp_port, running, admin_pos_queue, robot_id_queue))
     p5 = Process(target=start_main_controller_udp_server, args=(udp_ip, udp_port, running, main_ctrl_data_queue, pos_queue, admin_pos_queue, user_data_queue))
-    p6 = Process(target=data_to_user_pc, args=(user_ip, user_port, running, main_ctrl_data_queue, llm_data_queue, user_data_queue))
+    p6 = Process(target=data_to_user_pc, args=(user_ip, user_port, running, main_ctrl_data_queue, llm_data_queue, user_data_queue, distance_queue))
 
     processes = [p1, p2, p3, p4, p5, p6]
 
