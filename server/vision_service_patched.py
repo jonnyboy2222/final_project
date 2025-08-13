@@ -246,6 +246,7 @@ class Yolo_Deepsort():
         height = y2 - y1
         if height <= 0:
             return float('inf')
+        
         return round(1.7 * (200 / height), 2)
 
     def extract_feature(self, image):
@@ -386,12 +387,11 @@ class Yolo_Deepsort():
                                 "center_point": [float(cx), float(cy)],
                                 "distance": float(distance),
                             })
-
                     elif state == "WAITING":
                         # WAITING logic same as before; do candidate matching below
                         send_queue.put({
                                 "center_point": [],
-                                "distance": float(2),
+                                "distance": float(1),
                             })
                         # pass
 
@@ -492,6 +492,10 @@ class Yolo_Deepsort():
                 if current_time - self.last_seen > self.LOST_TIMEOUT:
                     state = "WAITING"
                     print("[WAITING] User lost → entering WAITING state")
+                    send_queue.put({
+                                "center_point": [],
+                                "distance": float(1),
+                            })
 
             if state == "WAITING" and self.is_obstacle_ahead():
                 print("[LIDAR] Obstacle ahead → possible user re-approaching")
