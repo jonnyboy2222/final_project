@@ -199,6 +199,27 @@ def send_pos_loop(pos_queue):
 
 
 def start_user_tcp_server(tcp_ip, user_tcp_port, running, vision_data_queue, robot_id_queue, already_checked):
+    # --- 추가: VD 주기 송신 On/Off ---
+    vd_enabled = threading.Event()
+
+    # --- 추가: 최신 비전 데이터 공유(스레드 간) ---
+    vision_lock = threading.Lock()
+    latest_vision = {"bytes": None}  # 최신 원본 바이트
+
+    # 최신 비전 데이터 수집 스레드 (vision_data_queue -> latest_vision)
+    threading.Thread(
+        target=vision_latest_collector,
+        args=(vision_data_queue, latest_vision, vision_lock, running),
+        daemon=True
+    ).start()
+
+    # VD 주기 송신 스레드 (초당 1회)
+    threading.Thread(
+        target=vd_sender_loop,
+        args=(vd_enabled, latest_vision, vision_lock, running),
+        daemon=True
+    ).start()
+
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
         server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server.bind((tcp_ip, user_tcp_port))
@@ -209,23 +230,54 @@ def start_user_tcp_server(tcp_ip, user_tcp_port, running, vision_data_queue, rob
             print("[SERVER] 대기 중: accepting connection...")
             conn, addr = server.accept()
             print(f"[SERVER] 새 연결 수신: {addr}")
-            threading.Thread(target=user_tcp_receiver, args=(conn, addr, vision_data_queue, robot_id_queue, already_checked), daemon=True).start()
+            threading.Thread(
+                target=user_tcp_receiver,
+                args=(conn, addr, latest_vision, vision_lock, robot_id_queue, already_checked, vd_enabled),
+                daemon=True
+            ).start()
 
-def user_tcp_receiver(conn, addr, vision_data_queue, robot_id_queue, already_checked):
+
+def vision_latest_collector(vision_data_queue, latest_vision, vision_lock, running):
+    while running.value:
+        try:
+            data = vision_data_queue.get(timeout=0.2)  # 블로킹으로 받아도 OK
+            with vision_lock:
+                latest_vision["bytes"] = data
+        except queue.Empty:
+            pass
+        except Exception as e:
+            print(f"[VISION LATEST COLLECTOR ERROR] {e}")
+            time.sleep(0.5)
+
+def vd_sender_loop(vd_enabled, latest_vision, vision_lock, running):
+    while running.value:
+        try:
+            if vd_enabled.is_set():
+                with vision_lock:
+                    vd_payload = latest_vision["bytes"]
+                if vd_payload is not None:
+                    # VD는 des_coor_list가 없고, vision_data 바이트만 보냄
+                    send_to_main_controller_udp("VD", None, vd_payload)
+            time.sleep(1.0)  # 초당 1회
+        except Exception as e:
+            print(f"[VD LOOP ERROR] {e}")
+            time.sleep(1.0)
+
+
+def user_tcp_receiver(conn, addr, latest_vision, vision_lock, robot_id_queue, already_checked, vd_enabled):
     print(f"[USER] Connected from {addr}")
     try:
         # arcs_db = ARCSDatabaseHandler()
 
         try:
             while True:
-                # 1. Header (1 byte)
+                # 1) Header (1 byte)
                 header = conn.recv(1)
                 if header != b'\x00':
-                    # print(f"[USER] Invalid header: {header}")
                     return
                 print(f"[USER] Header OK: {header.hex()}")
 
-                # 2. Length (4 bytes)
+                # 2) Length (4 bytes)
                 length_bytes = conn.recv(4)
                 if len(length_bytes) < 4:
                     print("[USER] Incomplete length received")
@@ -233,7 +285,7 @@ def user_tcp_receiver(conn, addr, vision_data_queue, robot_id_queue, already_che
                 (length,) = struct.unpack('>I', length_bytes)
                 print(f"[USER] Payload length: {length}")
 
-                # 3. Command (2 bytes)
+                # 3) Command (2 bytes)
                 command_raw = conn.recv(2)
                 if len(command_raw) < 2:
                     print("[USER] Incomplete command received")
@@ -241,44 +293,46 @@ def user_tcp_receiver(conn, addr, vision_data_queue, robot_id_queue, already_che
                 command = command_raw.decode('ascii')
                 print(f"[USER] Command: {command}")
 
-                # 4. Payload (length bytes)
+                # 4) Payload (length bytes)
                 if length > 0:
                     data = b''
                     remaining = length
                     while remaining > 0:
                         packet = conn.recv(remaining)
-
                         if not packet:
                             print(f"[USER] Connection closed early, {remaining} bytes left")
                             return
                         data += packet
                         remaining -= len(packet)
-
-                    # 5. Decode JSON
                     payload = json.loads(data.decode('utf-8'))
                     print(f"[USER] Payload: {payload}")
-                    
                 else:
                     payload = {}
 
-                # 즉시 메인 컨트롤러에 커맨드 전달
+                # ---- 커맨드 처리 ----
                 des_coor_list = payload.get("des_coor")
-                try:
-                    vision_data = vision_data_queue.get_nowait()
-                except queue.Empty:
-                    vision_data = None
-
-                send_to_main_controller_udp(command, des_coor_list, vision_data)
-
                 user_info = payload.get("user_info")
                 robot_id = payload.get("robot_id")
+                if robot_id is not None:
+                    robot_id_queue.put(robot_id)
 
-                robot_id_queue.put(robot_id)
+                # FW 수신 → VD 주기 송신 시작
+                if command == "FW":
+                    vd_enabled.set()
+                    print("[USER][VD] enabled (FW received)")
 
-                if user_info is not None:
-                    user_info["robot_id"] = robot_id
-                    # arcs_db.save_user(user_info)
+                # PS/RT/ED 수신 → VD 주기 송신 중지
+                if command in ("PS", "RT", "ED"):
+                    vd_enabled.clear()
+                    print(f"[USER][VD] disabled ({command} received)")
 
+                # VD 이외 커맨드는 즉시 UDP 전송 (vision 바이트는 최신 스냅샷만 읽기)
+                if command != "VD":
+                    with vision_lock:
+                        vision_bytes_snapshot = latest_vision["bytes"]
+                    send_to_main_controller_udp(command, des_coor_list, vision_bytes_snapshot)
+
+                # (아래는 기존 로직 유지)
                 # CK, LD, FW, RT, PS, FR, ED, KG, AR
                 if command in ("LD", "ED"):
                     try:
@@ -286,28 +340,26 @@ def user_tcp_receiver(conn, addr, vision_data_queue, robot_id_queue, already_che
                         pass
                     except Exception as e:
                         print(f"[USER][DB ERROR] replace_routes 실패: {e}")
-                    pass
                 elif command == "AR":
-                    pos_x = des_coor_list[0]
-                    pos_y = des_coor_list[1]
-                    # arcs_db.increment_place_visitor(pos_x, pos_y)
-
+                    if des_coor_list:
+                        pos_x = des_coor_list[0]
+                        pos_y = des_coor_list[1]
+                        # arcs_db.increment_place_visitor(pos_x, pos_y)
 
                 now = datetime.now()
-
                 if now.hour == 0 and now.minute == 0 and not already_checked.value:
                     # arcs_db.reset_place_visitor_and_total()
                     already_checked.value = True
-
                 if now.hour == 0 and now.minute == 1:
                     already_checked.value = False
 
-
         except Exception as e:
             print(f"[USER ERROR] {e}")
-    except KeyboardInterrupt:
+    finally:
+        vd_enabled.clear()  # 세션 종료 시 VD 중지
         conn.close()
         print(f"[USER] Connection closed from {addr}")
+
 
 # 커맨드 핸들러 함수 작성
 # following, leading, pausing, waiting
@@ -320,6 +372,7 @@ def send_to_main_controller_udp(command, des_coor_list, vision_data):
 
         if command == "VD":
             vision_data_bytes = vision_data
+            print(f"[UDP SEND] Sending vision data : {vision_data_bytes}")
 
             length = len(vision_data_bytes)
 
@@ -331,6 +384,7 @@ def send_to_main_controller_udp(command, des_coor_list, vision_data):
 
         else:
             # des_coor: [(x, y, angle), ...]
+            print(f"[UDP SEND] Sending command: {command}, des_coor_list: {des_coor_list}")
             if des_coor_list is not None:
                 des_coor_str = json.dumps(des_coor_list)
                 des_coor_bytes = des_coor_str.encode('utf-8')
@@ -616,8 +670,8 @@ def data_to_user_pc(user_ip, user_port, running, main_ctrl_data_queue, llm_data_
                 raw_oo_json_bytes = main_ctrl_data_queue.get()
                 oo_json_data = json.loads(raw_oo_json_bytes.decode('utf-8'))
                 print(f"[User] OO Data: {oo_json_data}")
-                oo_json_data["distance"] = 0 if distance <= 1.5 else 1  
-                dist_state = oo_json_data["distance"] = 0 if distance <= 1.5 else 1 # distance가 1.5 이하이면 0, 아니면 1로 설정
+                dist_state = 0 if distance <= 1.5 else 1
+                oo_json_data["distance"] = dist_state
                 print(f"[User] distance: {distance}, distance_state: {dist_state}")  # 디버깅용 출력
                 oo_json_bytes = json.dumps(oo_json_data).encode('utf-8')
 
@@ -663,7 +717,7 @@ if __name__ == "__main__":
 
     # Queue
     llm_data_queue = Queue()
-    vision_data_queue = Queue()
+    vision_data_queue = Queue(maxsize=10)
 
     main_ctrl_data_queue = Queue()
 
@@ -673,7 +727,7 @@ if __name__ == "__main__":
     admin_pos_queue = Queue()
 
     robot_id_queue = Queue()
-    distance_queue = Queue()
+    distance_queue = Queue(maxsize=10)
 
     p1 = Process(target=start_vision_tcp_server, args=(tcp_ip, vision_tcp_port, running, vision_data_queue, distance_queue))
     p2 = Process(target=start_llm_tcp_server, args=(tcp_ip, llm_tcp_port, running, llm_data_queue, pos_queue))
