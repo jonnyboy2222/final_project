@@ -159,7 +159,7 @@ class TcpCommunicator(QObject):
                         #command 수신
                         command_bytes = self.receiver_conn.recv(2) #ex)  b'AR'
                         command = command_bytes.decode("utf-8") #ex) 'AR'
-                        # print("[TCP 수신 command까지 완료]: " + command)
+                        print("[TCP 수신 받으면 띄움]: " + command)
 
                         #json수신 및 해독
                         data = b''
@@ -169,7 +169,7 @@ class TcpCommunicator(QObject):
                                 raise ConnectionResetError("payload 없음, 연결 종료")
                             data += packet
                         payload_dict = json.loads(data.decode("utf-8")) #gui에서 직접 사용할 수 있는 수신데이터 형식
-                        # print(f" [json 해독 완료]: {payload_dict}")
+                        print(f" [json 해독 완료]: {payload_dict}")
 
                         #mu_2 수신
                         if command == "AR":
@@ -320,6 +320,8 @@ class MainWindow(QMainWindow):
         self._tts_worker_running = True       # 워커 루프 제어 플래그
         self._tts_worker = threading.Thread(target=self._tts_worker_loop, daemon=True)
         self._tts_worker.start()
+        self.before_state_f = 0
+        self.before_state_g = 0
 
         #목적지 맵핑
         self.place_coords ={             
@@ -333,14 +335,16 @@ class MainWindow(QMainWindow):
             'shop_H': (4.0, 0.0, 0.0),
             'restaurant_K': (2.5, 7.3, 0.0),
             'restaurant_C': (5.5, 0.0, 0.0),
-            'convenience_store': (3.5, 11.4, 0.0),
+            'convenience_store': (4.0, 11.4, 0.0),
             'info_desk': (4.0, 8.7, 0.0),
             'cafe': (4.0, 5.7, 0.0)
         }
 
+       
         self.destinations = []  #a*에서 쓰일 목적지
         self.selected_keys = [] #page_selected_place에서 버튼 색 조절하려고 사용
         self.arrived_place = None #도착한 장소
+        self.arrived_key = None #도착한 장소 이름
         self.edit = False   #목적지 수정
 
         # decision 페이지 용 타이머 (싱글샷)
@@ -360,30 +364,7 @@ class MainWindow(QMainWindow):
         self.camera.frame_received.connect(self.on_camera_frame)
         self.camera.qr_detected.connect(self._on_qr_detected)
 
-        # # 지도 관련 구성 초기화
-        # self.scene = QGraphicsScene()     #그래픽 항목(도형, 이미지, 텍스트 등)을 관리할 수 있는 장면(scene) 객체 생성
-        # # self.view_map6.viewport().installEventFilter(self)
-        # # 맵 이미지 아이템 생성
-        # # 맵 이미지 로드
-        # pixmap = QPixmap("/home/dong/project_local/final_project/user_gui/academy.png")
-        # pixmap = pixmap.scaled(1380, 612, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        # self.map_item = QGraphicsPixmapItem(pixmap) #실제 맵으로 변경
-        # self.scene.addItem(self.map_item) #scene에다가 맵 추가. 아직 시각화 안 해서 보이지는 않음
-        # # 현재 위치 표시용 빨간 점
-        # self.arcs_item = QGraphicsEllipseItem(-5, -5, 10, 10) #중심이 (0,0)인 지름 10px짜리 원 객체 생성
-        # self.arcs_item.setBrush(QBrush(Qt.red)) #원 내부 색 빨강으로
-        # self.scene.addItem(self.arcs_item) #scene에다가 빨간 원 추가. 아직 시각화 안 해서 보이지는 않음
-        # 경로 선 저장용  
-        # self.path_items = []
-        # self.path = []   #경로
-        # self.position = None
-        # # 좌표 변환 비율 (1m → 50px)
-        # self.SCALE = 50.0
-
-
-        #=============동훈님 맵 그리기===
         self.scene = QGraphicsScene()
-
         with open("/home/dong/project_local/final_project/user_gui/final_map.yaml", 'r') as f:
             meta = yaml.safe_load(f)
             self.resolution = meta['resolution']  #1픽셀당 실제 몇 미터(또는 cm)에 해당하는지
@@ -402,8 +383,6 @@ class MainWindow(QMainWindow):
         self.path_items = []
         self.path = []   #경로 
         self.position = None
-        #==============================================================================
-
 
         # page mapping
         self.pages = {
@@ -477,6 +456,8 @@ class MainWindow(QMainWindow):
 
     #초기화
     def reset_all(self):
+        self.before_state_f = 0
+        self.before_state_g = 0
         self.tts_playing = False
         self.tts_process = None 
         #스캔 관련
@@ -496,6 +477,7 @@ class MainWindow(QMainWindow):
         self.destinations = []  #목적지
         self.selected_keys = [] #선택한 목적지
         self.arrived_place = None
+        self.arrived_key = None
         for btn in self.findChildren(QPushButton):
             if btn.objectName().startswith("btn_place_"):
                 btn.setStyleSheet("")
@@ -594,7 +576,30 @@ class MainWindow(QMainWindow):
         x1, y1 = self.position #현재위치
         x0, y0 = (3.0, 13.0) #충전소 좌표
         distance =  ((x1 - x0)**2 + (y1 - y0)**2)**0.5 #현재위치와 충전소 사이 거리
+
         if distance > 0.5:
+            arrived = self.destinations.pop(0)
+            self.arrived_key = self.selected_keys.pop(0)
+            self.arrived_place = arrived
+            payload_to_send = {
+                "robot_id": 1,
+                "user_info": None,
+                "des_coor": None
+            }
+            self.tcp.send_tcp_message_um("PS", payload_to_send)
+            print("[TCP] PS 전송 완료")
+            payload_to_send = {
+                "robot_id": 1,
+                "user_info": None,
+                "des_coor": self.arrived_place
+            }
+            self.tcp.send_tcp_message_um("AR", payload_to_send)
+            print("[TCP] AR 전송 완료")
+            self._refresh_place_buttons() 
+            print(f"AR수신받은 후 목적지(key): {self.selected_keys}")
+            print(f"AR수신받은 후 목적지(des): {self.destinations}")
+            print(f"새로 도착한 장소(key): {self.arrived_key}")
+            print(f"새로 도착한 장소(des) : {self.arrived_place}")
             self.show_page('decision')
         else: 
             self.show_page('charging')
@@ -607,11 +612,11 @@ class MainWindow(QMainWindow):
             "des_coor": None
         }
         self.tcp.send_tcp_message_um("PS", payload_to_send)
-
         llm_place_list = payload_dict.get("destination_location")
         llm_msg = payload_dict.get("response") or ""
         print(f"[TCP 수신] llm메시지: {llm_msg}")
-
+        time.sleep(1)
+        
         if self.selected_function == 'leading_mode':
             # llm_place_list = payload_dict.get("destination_location")
             if llm_place_list is not None: 
@@ -640,12 +645,28 @@ class MainWindow(QMainWindow):
                 "des_coor": self.destinations}
                 self.tcp.send_tcp_message_um("ED", payload_to_send)
                 print("[TCP 전송] llm목적지 추가해서 ED 전송완료")
+            
+            else:
+                payload_to_send = {
+                        "robot_id": 1,
+                        "user_info": None,
+                        "des_coor": self.destinations
+                    }
+                self.tcp.send_tcp_message_um("LD", payload_to_send)
+                print("[TCP] LD 전송 완료")
 
 
         elif self.selected_function == 'following_mode':
             if llm_place_list:
                 llm_msg = "따라가는 기능 중에는 길 안내를 할 수 없어요."
                 print(f"[TCP 수신] llm목적지 : {llm_place_list} / 안내 불가능")
+            payload_to_send = {
+            "robot_id": 1,
+            "user_info": self.user_info,
+            "des_coor": None
+            }
+            self.tcp.send_tcp_message_um("FW", payload_to_send)
+            print("[TCP] FW 전송 완료")
         else:
             llm_msg = "나를 따라와줘 또는 길 안내해줘를 선택 후 아크를 불러주세요"
         
@@ -659,6 +680,7 @@ class MainWindow(QMainWindow):
         loadcell = payload_dict.get("loadcell")               #무게
         self.position = payload_dict.get("current_position")       #현재위치(x,y)
         distance_state = payload_dict.get("distance")   #사용자와의 거리 상태
+        # print(f"받은 distance_state: {distance_state}")
         path = payload_dict.get("path")                       #목적지까지의 경로
         #실제 gui에서 사용
         if loadcell is not None:
@@ -669,7 +691,8 @@ class MainWindow(QMainWindow):
             # print(f"받은 self.position: {self.position}")
             self._update_position_ui()
         if distance_state is not None:
-            # print(f"받은 distance_state: {distance_state}")
+            # if distance_state == 1:
+                # print(f"받은 distance_state: {distance_state}")
             self._update_distance_text(distance_state)
         if path is not None:
             # print(f"받은 path : {path}")
@@ -726,18 +749,42 @@ class MainWindow(QMainWindow):
 
     def _update_distance_text(self, state):
         # print("_update_distance_text 함수 진입")
-        if hasattr(self, 'label_following_text5'): #해당 페이지에 label_following_text5가 있으면
+        if self.current_page == 'following' and hasattr(self, 'label_following_text5'): #해당 페이지에 label_following_text5가 있으면
             if state == 0: #정상
+                if self.before_state_f == 1:
+                    self._stop_tts()
+                    msg = "오케이, 다시 출발하셔도 될 것 같아요!"
+                    self.play_tts_async(msg)
                 self.label_following_text5.setText("동행중이에요:)")
+                self.before_state_f = state
             else:  # state == 1인 경우 (정해진 거리보다 멀어졌을 때)
+                self.before_state_f = state
                 msg = "우리 사이가 조금 멀어진 것 같아요. 조금만 기다려줄래요?"
                 self.play_tts_async(msg)
                 self.label_following_text5.setText("조금만 기다려주세요, 가고 있어요!")
 
-        if hasattr(self, 'label_check_place_text8'): #해당 페이지에 label_check_place_text8 있으면
+        if self.current_page == 'guiding' and hasattr(self, 'label_check_place_text8'): #해당 페이지에 label_check_place_text8 있으면
             if state == 0: #정상
+                if self.before_state_g == 1:
+                    self._stop_tts()
+                    msg = "다시 출발하겠습니다"
+                    self.play_tts_async(msg)
+                    payload_to_send = {
+                        "robot_id": 1,
+                        "user_info": None,
+                        "des_coor": self.destinations
+                    }
+                    self.tcp.send_tcp_message_um("LD", payload_to_send)
                 self.label_check_place_text8.setText("목적지로 길 안내중이에요:)")
+                self.before_state_g = state
             else:  # state == 1인 경우 (정해진 거리보다 멀어졌을 때)
+                self.before_state_g = state
+                payload_to_send = {
+                    "robot_id": 1,
+                    "user_info": None,
+                    "des_coor": None
+                }
+                self.tcp.send_tcp_message_um("PS", payload_to_send)
                 msg = "어디갔어요? 여기서 기다릴테니 얼른 다가와주세요"
                 self.play_tts_async(msg)
                 self.label_check_place_text8.setText("잘 따라와 주세요 :)")
@@ -790,12 +837,12 @@ class MainWindow(QMainWindow):
                 break
         #다음 목적지까지 남은 거리 page_guiding에 띄우기 (속도: 0.2m/s 기준)
         next_goal_dist = round(next_goal_dist, 2)
-        print(f"next_dist = {next_goal_dist}")
+        # print(f"next_dist = {next_goal_dist}")
         if hasattr(self, 'label_remained_distance8'):
             self.label_remained_distance8.setText(f"{next_goal_dist}m")
         #다음 목적지까지 남은 시간 page_guiding에 띄우기
         remained_time_s = round(next_goal_dist / 0.2)
-        print(f"remained_time : {remained_time_s}")
+        # print(f"remained_time : {remained_time_s}")
         minutes = remained_time_s // 60
         seconds = remained_time_s % 60
         remained_time_text = f"{minutes}분 {seconds}초" if minutes else f"{seconds}초"
@@ -874,7 +921,7 @@ class MainWindow(QMainWindow):
         self.tcp.send_tcp_message_um("PS", payload_to_send)
         print("[TCP] PS 전송 완료")
         self.selected_function = mode
-        if self.selected_function == "following_mode":
+        if self.selected_function == 'following_mode':
             msg = "넵 따라갈게요! 궁금한 게 있을 때 질문 앞에 아크야를 붙여서 질문해주시면 친절히 답 드릴게요"
         else:
             msg = "저만 믿으세요! 원하시는 목적지까지 잘 데려다 드릴게요"
@@ -1138,9 +1185,6 @@ class MainWindow(QMainWindow):
         self.view_map6.scale(3.0, 3.0)
         #============
 
-
-
-
     #page_select_place 나올 때 하는 일
     def _exit_select_place(self):
         pass
@@ -1336,38 +1380,16 @@ class MainWindow(QMainWindow):
     #page_decision_after_arrived 들어갈 때 하는 일
     def _enter_decision(self):
         if self.before_page == "guiding":
-            msg = f"{self.selected_keys[0]}에 도착했어요. 이제 무엇을 할 지 선택해주세요"
+            msg = f"{self.arrived_key}에 도착했어요. 이제 무엇을 할 지 선택해주세요"
         else:
             msg = "이제 무엇을 할 지 선택해주세요"
         self.play_tts_async(msg)
         print("I arrived")
-        print(f"page_decision_after_arrived: {self.selected_function}")
+        print(f"page_decision_after_arrived: {self.arrived_key}")
 
         self.decision_timer.start(20000) #들어오고 20초 반응 없으면 rt쏘고 복귀
         if not self.destinations:
             return
-        arrived = self.destinations.pop(0)
-        self.selected_keys.pop(0)
-        self.arrived_place = arrived
-        payload_to_send = {
-            "robot_id": 1,
-            "user_info": None,
-            "des_coor": None
-        }
-        self.tcp.send_tcp_message_um("PS", payload_to_send)
-        print("[TCP] PS 전송 완료")
-        payload_to_send = {
-            "robot_id": 1,
-            "user_info": None,
-            "des_coor": self.arrived_place
-        }
-        self.tcp.send_tcp_message_um("AR", payload_to_send)
-        print("[TCP] AR 전송 완료")
-        self._refresh_place_buttons() 
-        print(f"진짜 선택된 목적지(key): {self.selected_keys}")
-        print(f"진짜 선택되 목적지(des): {self.destinations}")
-        print(f"새로 도착한 장소: {self.arrived_place}")
-
 
     def _exit_decision(self):
        # decision 페이지를 벗어날 때 타이머 자동 취소
@@ -1381,6 +1403,7 @@ class MainWindow(QMainWindow):
             self.show_page("decision")
 
         if self.destinations:
+            self.btn_go_next_goal9.setText("다음 목적지 가자")
             payload_to_send = {
                 "robot_id": 1,
                 "user_info": None,
@@ -1391,6 +1414,7 @@ class MainWindow(QMainWindow):
             print("[TCP] LD 전송 완료")
             self.show_page("guiding")
         else:
+            self.btn_go_next_goal9.setText("다음 목적지 없어요")
             msg = "선택하신 목적지들을 다 안내해드렸어요. 가고싶은 곳이 추가로 있으시다면 목적지 변경할래를 선택해주시고 아니라면 수고했어를 눌러주세요."
             self.play_tts_async(msg)
 
@@ -1422,7 +1446,7 @@ class MainWindow(QMainWindow):
         payload_to_send = {
             "robot_id": 1,
             "user_info": None,
-            "des_coor": [(3.0,13.0,0.0)] #충전소 좌표
+            "des_coor": [(3.0,13.0,270.0)] #충전소 좌표
         }
         self.tcp.send_tcp_message_um("RT", payload_to_send)
         self.show_page("main")
@@ -1518,7 +1542,7 @@ class MainWindow(QMainWindow):
         payload_to_send = {
             "robot_id": 1,
             "user_info": None,
-            "des_coor": [(3.0,13.0,0.0)] #충전소 좌표
+            "des_coor": [(3.0,13.0,270.0)] #충전소 좌표
         }
         self.tcp.send_tcp_message_um("RT", payload_to_send)
         print("[TCP] RT 전송 완료")
@@ -1533,6 +1557,8 @@ class MainWindow(QMainWindow):
         pass
 
     def _enter_charging(self):
+        msg = "충전소로 복귀완료했어요."
+        self.play_tts_async(msg)
         print(self.selected_function)
         self.charge_blink = False
         self.charge_timer = QTimer(self)
