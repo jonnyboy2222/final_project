@@ -1,0 +1,45 @@
+[0.943s] Invoking command in '/home/addinedu/dev_ws/vic_pinky/src/vic_pinky': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PS1=\[\e[1;34m\](ID: ${ROS_DOMAIN_ID:-0})\[\e[1;32m\](${VIRTUAL_ENV##*/})\u\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]$ PYTHONPATH=/home/addinedu/dev_ws/vic_pinky/build/vic_pinky/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/python3.12/site-packages:${PYTHONPATH} VIRTUAL_ENV_PROMPT=(ros_venv) /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/vic_pinky build --build-base /home/addinedu/dev_ws/vic_pinky/build/vic_pinky/build install --record /home/addinedu/dev_ws/vic_pinky/build/vic_pinky/install.log --single-version-externally-managed install_data
+[1.270s] running egg_info
+[1.298s] writing ../../build/vic_pinky/vic_pinky.egg-info/PKG-INFO
+[1.298s] writing dependency_links to ../../build/vic_pinky/vic_pinky.egg-info/dependency_links.txt
+[1.299s] writing entry points to ../../build/vic_pinky/vic_pinky.egg-info/entry_points.txt
+[1.299s] writing requirements to ../../build/vic_pinky/vic_pinky.egg-info/requires.txt
+[1.299s] writing top-level names to ../../build/vic_pinky/vic_pinky.egg-info/top_level.txt
+[1.356s] reading manifest file '../../build/vic_pinky/vic_pinky.egg-info/SOURCES.txt'
+[1.358s] writing manifest file '../../build/vic_pinky/vic_pinky.egg-info/SOURCES.txt'
+[1.358s] running build
+[1.358s] running build_py
+[1.358s] copying vic_pinky/arcs_current_position_publisher.py -> /home/addinedu/dev_ws/vic_pinky/build/vic_pinky/build/lib/vic_pinky
+[1.358s] copying vic_pinky/arcs_aggregator.py -> /home/addinedu/dev_ws/vic_pinky/build/vic_pinky/build/lib/vic_pinky
+[1.358s] copying vic_pinky/arcs_arrival_sender.py -> /home/addinedu/dev_ws/vic_pinky/build/vic_pinky/build/lib/vic_pinky
+[1.359s] copying vic_pinky/arcs_loadcell_publisher.py -> /home/addinedu/dev_ws/vic_pinky/build/vic_pinky/build/lib/vic_pinky
+[1.359s] copying vic_pinky/arcs_commander.py -> /home/addinedu/dev_ws/vic_pinky/build/vic_pinky/build/lib/vic_pinky
+[1.359s] copying vic_pinky/arcs_follower.py -> /home/addinedu/dev_ws/vic_pinky/build/vic_pinky/build/lib/vic_pinky
+[1.359s] copying vic_pinky/arcs_navigator.py -> /home/addinedu/dev_ws/vic_pinky/build/vic_pinky/build/lib/vic_pinky
+[1.359s] copying vic_pinky/ip_test.py -> /home/addinedu/dev_ws/vic_pinky/build/vic_pinky/build/lib/vic_pinky
+[1.359s] copying vic_pinky/__init__.py -> /home/addinedu/dev_ws/vic_pinky/build/vic_pinky/build/lib/vic_pinky
+[1.359s] running install
+[1.364s] running install_lib
+[1.390s] copying /home/addinedu/dev_ws/vic_pinky/build/vic_pinky/build/lib/vic_pinky/arcs_navigator.py -> /home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/python3.12/site-packages/vic_pinky
+[1.391s] byte-compiling /home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/python3.12/site-packages/vic_pinky/arcs_navigator.py to arcs_navigator.cpython-312.pyc
+[1.395s] running install_data
+[1.395s] running install_egg_info
+[1.428s] removing '/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/python3.12/site-packages/vic_pinky-0.0.0-py3.12.egg-info' (and everything under it)
+[1.428s] Copying ../../build/vic_pinky/vic_pinky.egg-info to /home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/python3.12/site-packages/vic_pinky-0.0.0-py3.12.egg-info
+[1.429s] running install_scripts
+[1.487s] Installing arcs_aggregator script to /home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/vic_pinky
+[1.487s] Installing arcs_arrival_sender script to /home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/vic_pinky
+[1.487s] Installing arcs_avoid script to /home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/vic_pinky
+[1.487s] Installing arcs_commander script to /home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/vic_pinky
+[1.488s] Installing arcs_costmap_follower script to /home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/vic_pinky
+[1.488s] Installing arcs_current_position_publisher script to /home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/vic_pinky
+[1.488s] Installing arcs_distance_publisher script to /home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/vic_pinky
+[1.488s] Installing arcs_follower script to /home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/vic_pinky
+[1.488s] Installing arcs_loadcell_publisher script to /home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/vic_pinky
+[1.488s] Installing arcs_navigator script to /home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/vic_pinky
+[1.488s] Installing arcs_path script to /home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/vic_pinky
+[1.489s] Installing arcs_person script to /home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/vic_pinky
+[1.489s] Installing arcs_simple_follower script to /home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/vic_pinky
+[1.489s] Installing arcs_video script to /home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/vic_pinky
+[1.489s] writing list of installed files to '/home/addinedu/dev_ws/vic_pinky/build/vic_pinky/install.log'
+[1.512s] Invoked command in '/home/addinedu/dev_ws/vic_pinky/src/vic_pinky' returned '0': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PS1=\[\e[1;34m\](ID: ${ROS_DOMAIN_ID:-0})\[\e[1;32m\](${VIRTUAL_ENV##*/})\u\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]$ PYTHONPATH=/home/addinedu/dev_ws/vic_pinky/build/vic_pinky/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/python3.12/site-packages:${PYTHONPATH} VIRTUAL_ENV_PROMPT=(ros_venv) /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/vic_pinky build --build-base /home/addinedu/dev_ws/vic_pinky/build/vic_pinky/build install --record /home/addinedu/dev_ws/vic_pinky/build/vic_pinky/install.log --single-version-externally-managed install_data

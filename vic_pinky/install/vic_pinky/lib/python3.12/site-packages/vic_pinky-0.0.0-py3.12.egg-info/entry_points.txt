@@ -1,0 +1,15 @@
+[console_scripts]
+arcs_aggregator = vic_pinky.arcs_aggregator:main
+arcs_arrival_sender = vic_pinky.arcs_arrival_sender:main
+arcs_avoid = vic_pinky.arcs_avoid:main
+arcs_commander = vic_pinky.arcs_commander:main
+arcs_costmap_follower = vic_pinky.arcs_costmap_follower:main
+arcs_current_position_publisher = vic_pinky.arcs_current_position_publisher:main
+arcs_distance_publisher = vic_pinky.arcs_distance_publisher:main
+arcs_follower = vic_pinky.arcs_follower:main
+arcs_loadcell_publisher = vic_pinky.arcs_loadcell_publisher:main
+arcs_navigator = vic_pinky.arcs_navigator:main
+arcs_path = vic_pinky.arcs_path:main
+arcs_person = vic_pinky.arcs_person:main
+arcs_simple_follower = vic_pinky.arcs_simple_follower:main
+arcs_video = vic_pinky.arcs_video:main

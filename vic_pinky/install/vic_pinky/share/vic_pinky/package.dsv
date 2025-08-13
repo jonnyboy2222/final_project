@@ -1,0 +1,6 @@
+source;share/vic_pinky/hook/pythonpath.ps1
+source;share/vic_pinky/hook/pythonpath.dsv
+source;share/vic_pinky/hook/pythonpath.sh
+source;share/vic_pinky/hook/ament_prefix_path.ps1
+source;share/vic_pinky/hook/ament_prefix_path.dsv
+source;share/vic_pinky/hook/ament_prefix_path.sh

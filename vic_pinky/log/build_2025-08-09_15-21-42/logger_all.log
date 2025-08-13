@@ -1,0 +1,127 @@
+[0.098s] DEBUG:colcon:Command line arguments: ['/usr/bin/colcon', 'build']
+[0.098s] DEBUG:colcon:Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='build', build_base='build', install_base='install', merge_install=False, symlink_install=False, test_result_base=None, continue_on_error=False, executor='parallel', parallel_workers=12, event_handlers=None, ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['.'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=None, packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, allow_overriding=[], cmake_args=None, cmake_target=None, cmake_target_skip_unavailable=False, cmake_clean_cache=False, cmake_clean_first=False, cmake_force_configure=False, ament_cmake_args=None, catkin_cmake_args=None, catkin_skip_building_tests=False, mixin_files=None, mixin=None, verb_parser=<colcon_mixin.mixin.mixin_argument.MixinArgumentDecorator object at 0x7bdc9afd9c10>, verb_extension=<colcon_core.verb.build.BuildVerb object at 0x7bdc9afd9940>, main=<bound method BuildVerb.main of <colcon_core.verb.build.BuildVerb object at 0x7bdc9afd9940>>, mixin_verb=('build',))
+[0.128s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[0.128s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[0.128s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[0.128s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[0.128s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) discover
+[0.128s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[0.128s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/home/addinedu/dev_ws/vic_pinky'
+[0.128s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ignore', 'ignore_ament_install']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore_ament_install'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_pkg']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_pkg'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_meta']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_meta'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ros']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ros'
+[0.148s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['cmake', 'python']
+[0.148s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'cmake'
+[0.149s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python'
+[0.149s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['python_setup_py']
+[0.149s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python_setup_py'
+[0.149s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extensions ['ignore', 'ignore_ament_install']
+[0.149s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extension 'ignore'
+[0.149s] Level 1:colcon.colcon_core.package_identification:_identify(build) ignored
+[0.149s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extensions ['ignore', 'ignore_ament_install']
+[0.149s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extension 'ignore'
+[0.149s] Level 1:colcon.colcon_core.package_identification:_identify(install) ignored
+[0.149s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extensions ['ignore', 'ignore_ament_install']
+[0.149s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extension 'ignore'
+[0.149s] Level 1:colcon.colcon_core.package_identification:_identify(log) ignored
+[0.149s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ignore', 'ignore_ament_install']
+[0.149s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore'
+[0.149s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore_ament_install'
+[0.149s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_pkg']
+[0.149s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_pkg'
+[0.150s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_meta']
+[0.150s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_meta'
+[0.150s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ros']
+[0.150s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ros'
+[0.150s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['cmake', 'python']
+[0.150s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'cmake'
+[0.150s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python'
+[0.150s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['python_setup_py']
+[0.150s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python_setup_py'
+[0.150s] Level 1:colcon.colcon_core.package_identification:_identify(src/vic_pinky) by extensions ['ignore', 'ignore_ament_install']
+[0.150s] Level 1:colcon.colcon_core.package_identification:_identify(src/vic_pinky) by extension 'ignore'
+[0.150s] Level 1:colcon.colcon_core.package_identification:_identify(src/vic_pinky) by extension 'ignore_ament_install'
+[0.150s] Level 1:colcon.colcon_core.package_identification:_identify(src/vic_pinky) by extensions ['colcon_pkg']
+[0.150s] Level 1:colcon.colcon_core.package_identification:_identify(src/vic_pinky) by extension 'colcon_pkg'
+[0.150s] Level 1:colcon.colcon_core.package_identification:_identify(src/vic_pinky) by extensions ['colcon_meta']
+[0.150s] Level 1:colcon.colcon_core.package_identification:_identify(src/vic_pinky) by extension 'colcon_meta'
+[0.150s] Level 1:colcon.colcon_core.package_identification:_identify(src/vic_pinky) by extensions ['ros']
+[0.150s] Level 1:colcon.colcon_core.package_identification:_identify(src/vic_pinky) by extension 'ros'
+[0.152s] DEBUG:colcon.colcon_core.package_identification:Package 'src/vic_pinky' with type 'ros.ament_python' and name 'vic_pinky'
+[0.152s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults
+[0.152s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) discover
+[0.152s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) using defaults
+[0.152s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) discover
+[0.152s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) using defaults
+[0.167s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) check parameters
+[0.167s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) discover
+[0.168s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 1 installed packages in /home/addinedu/dev_ws/vic_pinky/install
+[0.170s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 390 installed packages in /opt/ros/jazzy
+[0.170s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) using defaults
+[0.215s] Level 5:colcon.colcon_core.verb:set package 'vic_pinky' build argument 'cmake_args' from command line to 'None'
+[0.215s] Level 5:colcon.colcon_core.verb:set package 'vic_pinky' build argument 'cmake_target' from command line to 'None'
+[0.215s] Level 5:colcon.colcon_core.verb:set package 'vic_pinky' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.215s] Level 5:colcon.colcon_core.verb:set package 'vic_pinky' build argument 'cmake_clean_cache' from command line to 'False'
+[0.215s] Level 5:colcon.colcon_core.verb:set package 'vic_pinky' build argument 'cmake_clean_first' from command line to 'False'
+[0.215s] Level 5:colcon.colcon_core.verb:set package 'vic_pinky' build argument 'cmake_force_configure' from command line to 'False'
+[0.215s] Level 5:colcon.colcon_core.verb:set package 'vic_pinky' build argument 'ament_cmake_args' from command line to 'None'
+[0.215s] Level 5:colcon.colcon_core.verb:set package 'vic_pinky' build argument 'catkin_cmake_args' from command line to 'None'
+[0.215s] Level 5:colcon.colcon_core.verb:set package 'vic_pinky' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.215s] DEBUG:colcon.colcon_core.verb:Building package 'vic_pinky' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/addinedu/dev_ws/vic_pinky/build/vic_pinky', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/addinedu/dev_ws/vic_pinky/install/vic_pinky', 'merge_install': False, 'path': '/home/addinedu/dev_ws/vic_pinky/src/vic_pinky', 'symlink_install': False, 'test_result_base': None}
+[0.215s] INFO:colcon.colcon_core.executor:Executing jobs using 'parallel' executor
+[0.216s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete
+[0.216s] INFO:colcon.colcon_ros.task.ament_python.build:Building ROS package in '/home/addinedu/dev_ws/vic_pinky/src/vic_pinky' with build type 'ament_python'
+[0.217s] Level 1:colcon.colcon_core.shell:create_environment_hook('vic_pinky', 'ament_prefix_path')
+[0.218s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_core.shell.bat': Not used on non-Windows systems
+[0.218s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/share/vic_pinky/hook/ament_prefix_path.ps1'
+[0.219s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/share/vic_pinky/hook/ament_prefix_path.dsv'
+[0.219s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/share/vic_pinky/hook/ament_prefix_path.sh'
+[0.220s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.220s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.453s] INFO:colcon.colcon_core.task.python.build:Building Python package in '/home/addinedu/dev_ws/vic_pinky/src/vic_pinky'
+[0.453s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.453s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[1.085s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/addinedu/dev_ws/vic_pinky/src/vic_pinky': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PS1=\[\e[1;34m\](ID: ${ROS_DOMAIN_ID:-0})\[\e[1;32m\](${VIRTUAL_ENV##*/})\u\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]$ PYTHONPATH=/home/addinedu/dev_ws/vic_pinky/build/vic_pinky/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/python3.12/site-packages:${PYTHONPATH} VIRTUAL_ENV_PROMPT=(ros_venv) /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/vic_pinky build --build-base /home/addinedu/dev_ws/vic_pinky/build/vic_pinky/build install --record /home/addinedu/dev_ws/vic_pinky/build/vic_pinky/install.log --single-version-externally-managed install_data
+[1.656s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/addinedu/dev_ws/vic_pinky/src/vic_pinky' returned '0': DEBUGINFOD_URLS=https://debuginfod.ubuntu.com PS1=\[\e[1;34m\](ID: ${ROS_DOMAIN_ID:-0})\[\e[1;32m\](${VIRTUAL_ENV##*/})\u\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]$ PYTHONPATH=/home/addinedu/dev_ws/vic_pinky/build/vic_pinky/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/python3.12/site-packages:${PYTHONPATH} VIRTUAL_ENV_PROMPT=(ros_venv) /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/vic_pinky build --build-base /home/addinedu/dev_ws/vic_pinky/build/vic_pinky/build install --record /home/addinedu/dev_ws/vic_pinky/build/vic_pinky/install.log --single-version-externally-managed install_data
+[1.658s] Level 1:colcon.colcon_core.environment:checking '/home/addinedu/dev_ws/vic_pinky/install/vic_pinky' for CMake module files
+[1.658s] Level 1:colcon.colcon_core.environment:checking '/home/addinedu/dev_ws/vic_pinky/install/vic_pinky' for CMake config files
+[1.659s] Level 1:colcon.colcon_core.environment:checking '/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib'
+[1.659s] Level 1:colcon.colcon_core.environment:checking '/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/bin'
+[1.659s] Level 1:colcon.colcon_core.environment:checking '/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/pkgconfig/vic_pinky.pc'
+[1.659s] Level 1:colcon.colcon_core.environment:checking '/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/lib/python3.12/site-packages'
+[1.659s] Level 1:colcon.colcon_core.shell:create_environment_hook('vic_pinky', 'pythonpath')
+[1.660s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/share/vic_pinky/hook/pythonpath.ps1'
+[1.660s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/share/vic_pinky/hook/pythonpath.dsv'
+[1.660s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/share/vic_pinky/hook/pythonpath.sh'
+[1.661s] Level 1:colcon.colcon_core.environment:checking '/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/bin'
+[1.661s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(vic_pinky)
+[1.661s] INFO:colcon.colcon_core.shell:Creating package script '/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/share/vic_pinky/package.ps1'
+[1.662s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/share/vic_pinky/package.dsv'
+[1.662s] INFO:colcon.colcon_core.shell:Creating package script '/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/share/vic_pinky/package.sh'
+[1.663s] INFO:colcon.colcon_core.shell:Creating package script '/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/share/vic_pinky/package.bash'
+[1.664s] INFO:colcon.colcon_core.shell:Creating package script '/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/share/vic_pinky/package.zsh'
+[1.665s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/addinedu/dev_ws/vic_pinky/install/vic_pinky/share/colcon-core/packages/vic_pinky)
+[1.665s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:closing loop
+[1.665s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:loop closed
+[1.666s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete finished with '0'
+[1.666s] DEBUG:colcon.colcon_core.event_reactor:joining thread
+[1.670s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.terminal_notifier': Not used on non-Darwin systems
+[1.670s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.win32': Not used on non-Windows systems
+[1.670s] INFO:colcon.colcon_notification.desktop_notification:Sending desktop notification using 'notify2'
+[1.681s] DEBUG:colcon.colcon_core.event_reactor:joined thread
+[1.681s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/addinedu/dev_ws/vic_pinky/install/local_setup.ps1'
+[1.682s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/addinedu/dev_ws/vic_pinky/install/_local_setup_util_ps1.py'
+[1.683s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/addinedu/dev_ws/vic_pinky/install/setup.ps1'
+[1.684s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/addinedu/dev_ws/vic_pinky/install/local_setup.sh'
+[1.684s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/addinedu/dev_ws/vic_pinky/install/_local_setup_util_sh.py'
+[1.685s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/addinedu/dev_ws/vic_pinky/install/setup.sh'
+[1.685s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/addinedu/dev_ws/vic_pinky/install/local_setup.bash'
+[1.686s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/addinedu/dev_ws/vic_pinky/install/setup.bash'
+[1.686s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/addinedu/dev_ws/vic_pinky/install/local_setup.zsh'
+[1.687s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/addinedu/dev_ws/vic_pinky/install/setup.zsh'
