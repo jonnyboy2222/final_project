@@ -11,7 +11,17 @@
 | [![Leading Demo](images/leading_thumb.png)](https://youtu.be/LEADING_DEMO_URL "Leading Demo") | [![Following Demo](images/following_thumb.png)](https://youtu.be/FOLLOWING_DEMO_URL "Following Demo") |
 
 ---
+## 0. Development Environment
+| 분류           | 사용 기술 |
+|----------------|-----------|
+| **개발 환경**      | ![Ubuntu](https://img.shields.io/badge/Ubuntu%2024.04-E95420?style=flat&logo=ubuntu&logoColor=white) ![VSCode](https://img.shields.io/badge/VSCode-007ACC?style=flat&logo=visual-studio-code&logoColor=white) |
+| **언어**           | ![Python](https://img.shields.io/badge/Python%203.10-3776AB?style=flat&logo=python&logoColor=white) |
+| **데이터베이스**   | ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat&logo=mysql&logoColor=white) |
+| **형상 관리**      | ![Git](https://img.shields.io/badge/Git-F05032?style=flat&logo=git&logoColor=white) ![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white) |
+| **협업 도구**      | ![Confluence](https://img.shields.io/badge/Confluence-172B4D?style=flat&logo=confluence&logoColor=white) ![Jira](https://img.shields.io/badge/Jira-0052CC?style=flat&logo=jira&logoColor=white) ![Slack](https://img.shields.io/badge/Slack-4A154B?style=flat&logo=slack&logoColor=white) |
+| **ROS/시뮬레이션** | ![ROS 2 Jazzy](https://img.shields.io/badge/ROS%202-Jazzy-22314E?style=flat&logo=ros&logoColor=white) |
 
+---
 ## 1. Overview
 **ARCS**는 공항 이용객을 목적지까지 **안전하게 동행 안내**하고, **자연어 Q&A**와 **운영/관리 도구**를 함께 제공하는 로봇 시스템입니다. 사용자와의 거리를 안정적으로 유지하며(추종), 전·후·좌·우 위험 구역 기반 회피와 **긴급 정지(E-Stop)** 로 안전을 보장합니다. 운영자는 **Admin Console**로 로봇 상태/위치를 모니터링하고 **사용 종료 시 자동 복귀 정책** 등을 적용할 수 있습니다.
 
